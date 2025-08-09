@@ -1,0 +1,137 @@
+/* Genel footer alanı */
+.footer {
+  width: 100%;
+  background:
+    radial-gradient(1200px 400px at 20% -10%, rgba(98, 0, 234, 0.35), rgba(98, 0, 234, 0) 60%), /* #6200ea */
+    radial-gradient(1000px 300px at 90% 0%, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0) 50%), /* #6366f1 */
+    linear-gradient(180deg, #0b1020 0%, #0a0f1e 100%);
+  color: #e5e7eb;
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px 28px;
+}
+
+/* Grid düzeni */
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.footer-col {
+  grid-column: span 12 / span 12;
+}
+
+@media (min-width: 768px) {
+  .footer-brand { grid-column: span 4 / span 4; }
+  .footer-col { grid-column: span 3 / span 3; }
+  .footer-newsletter { grid-column: span 5 / span 5; }
+}
+
+/* Marka alanı */
+.footer-logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #6366f1; /* navbar logo rengi ile uyumlu */
+  margin: 0 0 8px 0;
+}
+
+.footer-desc {
+  color: #c7d2fe;
+  margin-bottom: 18px;
+}
+
+/* Mağaza rozetleri */
+.footer-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(192, 223, 255, 0.35); /* navbar buton kenarlığına uyum (#c0dfff) */
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  padding: 8px 10px;
+  text-decoration: none;
+  color: #fff;
+  transition: all .25s ease;
+  backdrop-filter: blur(4px);
+}
+
+.store-badge:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+  border-color: rgba(192, 223, 255, 0.55);
+}
+
+.badge-icon { width: 18px; height: 18px; }
+
+.badge-texts {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  line-height: 1;
+}
+.badge-small { font-size: 10px; opacity: 0.8; }
+.badge-big { font-size: 13px; font-weight: 700; }
+
+/* Sosyal bağlantılar */
+.footer-social { margin-top: 14px; display: flex; gap: 10px; }
+.social-link {
+  width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px; background: rgba(255,255,255,0.06); color: #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.12); transition: all .25s ease;
+}
+.social-link:hover { background: rgba(255,255,255,0.16); transform: translateY(-2px); color: #2563eb; }
+
+/* Kolon başlık ve linkler */
+.col-title { color: #ffffff; font-size: 1rem; font-weight: 700; margin: 8px 0 10px; }
+.col-links { list-style: none; padding: 0; margin: 0; }
+.col-links li { margin: 8px 0; }
+.col-links a { color: #c0dfff; text-decoration: none; transition: color .2s, transform .2s; }
+.col-links a:hover { color: #1d4ed8; transform: translateX(4px); }
+
+/* Bülten formu */
+.newsletter-desc { color: #c7d2fe; margin: 6px 0 12px; }
+.newsletter-form { display: flex; gap: 10px; margin-bottom: 14px; }
+.newsletter-form input {
+  flex: 1; min-width: 0; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; color: #fff; padding: 12px 14px; outline: none;
+}
+.newsletter-form input::placeholder { color: #9ca3af; }
+.newsletter-form button {
+  background: #6366f1; color: #fff; border: none; padding: 12px 16px; border-radius: 12px; cursor: pointer;
+  font-weight: 700; transition: all .25s ease; white-space: nowrap;
+}
+.newsletter-form button:hover { background: #1b7aff; transform: translateY(-1px); }
+
+.contact-list { list-style: none; padding: 0; margin: 10px 0 0; color: #c7d2fe; }
+.contact-list li { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+
+/* Alt satır */
+.footer-bottom {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-bottom p { margin: 0; color: #c0dfff; }
+.footer-legal { list-style: none; padding: 0; margin: 0; display: flex; gap: 16px; }
+.footer-legal a { color: #c0dfff; text-decoration: none; }
+.footer-legal a:hover { color: #1d4ed8; }
+
+@media (min-width: 640px) {
+  .footer-bottom { flex-direction: row; align-items: center; justify-content: space-between; }
+}
