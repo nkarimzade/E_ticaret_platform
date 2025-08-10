@@ -61,7 +61,11 @@ const ProductSchema = new mongoose.Schema(
     name: { type: String, required: true },
     price: { type: Number, required: true },
     stock: { type: Number, required: true },
-    image: { type: String, default: '' }, // stored as "/uploads/<filename>"
+    image: { type: String, default: '' },
+    description: { type: String, default: '' },
+    color: { type: String, default: '' },
+    size: { type: String, default: '' },
+    addedAt: { type: Date, default: Date.now }, // Eklenme tarihi
   },
   { timestamps: true }
 )
@@ -88,7 +92,11 @@ StoreSchema.set('toJSON', {
   transform: (_doc, ret) => {
     ret.id = ret._id
     if (Array.isArray(ret.products)) {
-      ret.products = ret.products.map((p) => ({ ...p, id: p._id }))
+      ret.products = ret.products.map((p) => ({ 
+        ...p, 
+        id: p._id,
+        addedAt: p.addedAt || p.createdAt // Sadece gerçek tarih bilgileri
+      }))
     }
     return ret
   },
@@ -103,8 +111,25 @@ app.post('/api/stores', async (req, res) => {
     if (!name || !owner || !email || !phone || !password) {
       return res.status(400).json({ message: 'Gerekli alanlar eksik.' })
     }
-    const exists = await Store.findOne({ email: email.toLowerCase() })
-    if (exists) return res.status(409).json({ message: 'Bu e-posta ile kayıt mevcut.' })
+    
+    // E-posta kontrolü
+    const emailExists = await Store.findOne({ email: email.toLowerCase() })
+    if (emailExists) {
+      return res.status(409).json({ 
+        message: 'Bu e-posta ünvanı artıq istifadə olunub.',
+        field: 'email'
+      })
+    }
+    
+    // Telefon kontrolü
+    const phoneExists = await Store.findOne({ phone: phone })
+    if (phoneExists) {
+      return res.status(409).json({ 
+        message: 'Bu telefon nömrəsi artıq istifadə olunub.',
+        field: 'phone'
+      })
+    }
+    
     const passwordHash = await bcrypt.hash(password, 10)
     const store = await Store.create({ name, owner, email, phone, description, passwordHash })
     res.json(store.toJSON())
@@ -131,10 +156,60 @@ app.get('/api/stores/approved', async (_req, res) => {
   }
 })
 
+// Debug endpoint - tüm mağazaları ve durumlarını göster
+app.get('/api/debug/stores', async (_req, res) => {
+  try {
+    const stores = await Store.find({}).sort({ createdAt: -1 })
+    const debugInfo = stores.map(s => ({
+      id: s._id,
+      name: s.name,
+      status: s.status,
+      active: s.active,
+      productsCount: s.products ? s.products.length : 0,
+      createdAt: s.createdAt
+    }))
+    res.json(debugInfo)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Onaylanmış mağazaları aktif hale getir
+app.post('/api/debug/activate-approved', async (_req, res) => {
+  try {
+    const result = await Store.updateMany(
+      { status: 'approved', active: false },
+      { active: true }
+    )
+    res.json({ 
+      message: `${result.modifiedCount} mağaza aktif hale getirildi`,
+      modifiedCount: result.modifiedCount
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Tüm pending mağazaları onayla (sadece debug için)
+app.post('/api/debug/approve-all-pending', async (_req, res) => {
+  try {
+    const result = await Store.updateMany(
+      { status: 'pending' },
+      { status: 'approved', active: true }
+    )
+    res.json({ 
+      message: `${result.modifiedCount} mağaza onaylandı ve aktif hale getirildi`,
+      modifiedCount: result.modifiedCount
+    })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
 app.post('/api/stores/:id/approve', async (req, res) => {
   try {
     const { id } = req.params
-    const store = await Store.findByIdAndUpdate(id, { status: 'approved' }, { new: true })
+    const store = await Store.findByIdAndUpdate(id, { status: 'approved', active: true }, { new: true })
     if (!store) return res.status(404).json({ message: 'Mağaza bulunamadı' })
     res.json(store.toJSON())
   } catch (e) {
@@ -169,7 +244,7 @@ app.post('/api/stores/:id/toggle', async (req, res) => {
 app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { storeId } = req.params
-    const { name, price, stock } = req.body || {}
+    const { name, price, stock, description, color, size } = req.body || {}
     if (!name || price === undefined || stock === undefined) {
       return res.status(400).json({ message: 'Ürün bilgileri eksik.' })
     }
@@ -179,7 +254,17 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
       return res.status(403).json({ message: 'Sadece kendi mağazanıza ürün ekleyebilirsiniz.' })
     }
     const imagePath = req.file ? `/uploads/${req.file.filename}` : ''
-    store.products.push({ name, price: Number(price), stock: Number(stock), image: imagePath })
+    const productDoc = {
+      name,
+      price: Number(price),
+      stock: Number(stock),
+      image: imagePath,
+      description: description || '',
+      color: color || '',
+      size: size || '',
+      addedAt: new Date(), // Gerçek eklenme tarihi
+    }
+    store.products.push(productDoc)
     await store.save()
     const product = store.products[store.products.length - 1]
     res.json(product)
@@ -308,6 +393,37 @@ app.delete('/api/admin/products/:storeId/:productId', async (req, res) => {
     if (result.matchedCount === 0) return res.status(404).json({ message: 'Mağaza bulunamadı' })
     // Note: If no product matched, modifiedCount will be 0 but we still return ok for idempotency
     res.json({ ok: true, removed: result.modifiedCount > 0 })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Admin: list users (store accounts)
+app.get('/api/admin/users', async (_req, res) => {
+  try {
+    const stores = await Store.find({}, 'email owner name phone status createdAt').sort({ createdAt: -1 })
+    const users = stores.map((s) => ({
+      id: s.id,
+      email: s.email,
+      owner: s.owner,
+      storeName: s.name,
+      phone: s.phone,
+      status: s.status,
+      createdAt: s.createdAt,
+    }))
+    res.json(users)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Admin: delete user (deletes store account)
+app.delete('/api/admin/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const deleted = await Store.findByIdAndDelete(id)
+    if (!deleted) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+    res.json({ ok: true })
   } catch (e) {
     res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
   }

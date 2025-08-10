@@ -40,8 +40,8 @@ const Navbar = () => {
         <div className="navbar-container">
           {/* Logo */}
           <div style={{display: 'flex', alignItems: 'center', gap: '50px' }}  className="navbar-logo">
-            <span className="logo-text">Heshop</span>
-            <ul className="navbar-menu">
+             <h1>Heshop</h1>
+             <ul className="navbar-menu">
               <li><a href="#faq" className="nav-link">Heshop nədir?</a></li>
             </ul>
           </div>

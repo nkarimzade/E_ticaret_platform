@@ -45,18 +45,14 @@ const StoreDetail = () => {
 
   return (
     <div className="page">
-      <div className="card store-hero">
-        <div className="store-hero-inner">
-          <div className="store-hero-texts">
-            <h2 className="store-title">{store.name}</h2>
-            <div className="store-meta"><span>Satıcı: {store.owner}</span><span className={`badge ${store.active?'active':'inactive'}`}>{store.active?'Aktif':'Pasif'}</span></div>
-            <p className="desc">{store.description || '—'}</p>
-          </div>
-        </div>
+      <div style={{width:"100%",height:"5vh",display:"flex",alignItems:"center",justifyContent:"center",backgroundColor:"#6366f1",color:"#ffffff",fontSize:"1rem",margin:"20px 0",borderRadius:"10px"}}>Hal-hazırda {store.name} mağazasındasınız</div>
+      <div style={{textAlign:"center",fontSize:"1.2rem",margin:"20px 0"}}>
+        Aşağıda {store.name} mağazasındakı məhsulları görə bilərsiniz.
       </div>
+    
 
       <div className="toolbar">
-        <h3>Məhsullar</h3>
+        <h3>Mağazadakı Məhsulları</h3>
         <div className="search-input">
           <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#6b7280" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 110-8 4 4 0 010 8z"></path></svg>
           <input placeholder="Məhsul axtar" value={q} onChange={(e)=>setQ(e.target.value)} />
@@ -72,7 +68,18 @@ const StoreDetail = () => {
               <div className="product-title">{p.name}</div>
               <div className="product-price">{p.price} AZN</div>
               <div className="product-meta">Stok: {p.stock}</div>
-              <a className="btn btn-primary" href={makeWaMsg(p)} target="_blank" rel="noreferrer" style={{marginTop:10}}>Ödəniş üçün WhatsApp-la əlaqə saxlayın</a>
+              <div className="product-detail-actions">
+                <a 
+                  className="product-detail-link"
+                  href={`/urun/${store.id}/${p.id}`}
+                >
+                  Məhsul Haqqında Ətraflı
+                </a>
+                <br />
+                <a className="btn btn-primary" href={makeWaMsg(p)} target="_blank" rel="noreferrer">
+                  Ödəniş üçün Kliklə
+                </a>
+              </div>
             </div>
           </div>
         ))}

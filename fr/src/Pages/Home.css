@@ -532,11 +532,11 @@
 }
 
 .faq-more-btn{
-    background: darkgray;
+    background: #6366f1;
     color: #fff;
     border: none;
     font-size: 0.9rem;
-    font-weight: 100;
+    font-weight: 700;
     cursor: pointer;
     padding: 10px 20px;
     border-radius: 5px;

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api, resolveImageUrl } from '../utils/api'
+import Notification from '../Components/Notification'
+import ConfirmModal from '../Components/ConfirmModal'
 
 const MagazaPanel = () => {
   const [stores, setStores] = useState([])
@@ -8,6 +10,8 @@ const MagazaPanel = () => {
 
   const [token, setToken] = useState(localStorage.getItem('store_token') || '')
   const [me, setMe] = useState(null)
+  const [notification, setNotification] = useState(null)
+  const [confirmModal, setConfirmModal] = useState(null)
   const onLogout = () => {
     localStorage.removeItem('store_token')
     setToken('')
@@ -40,15 +44,22 @@ const MagazaPanel = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault()
     if (!selectedStoreId) return
-    if (!token) { alert('Ürün eklemek için giriş yapın'); return }
+    if (!token) { 
+      setNotification({ message: 'Ürün eklemek için giriş yapın', type: 'error' })
+      return 
+    }
     const formData = new FormData()
     formData.append('name', product.name)
     formData.append('price', String(product.price))
     formData.append('stock', String(product.stock))
     if (product.file) formData.append('image', product.file)
-    await api.addProduct(selectedStoreId, formData, token)
-    setProduct({ name: '', price: '', stock: '', file: null })
-    alert('Ürün eklendi')
+    try {
+      await api.addProduct(selectedStoreId, formData, token)
+      setProduct({ name: '', price: '', stock: '', file: null })
+      setNotification({ message: 'Ürün uğurla əlavə edildi!', type: 'success' })
+    } catch (error) {
+      setNotification({ message: 'Ürün əlavə edilə bilmədi. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
+    }
   }
 
   const toggleStoreActive = () => {
@@ -58,18 +69,40 @@ const MagazaPanel = () => {
 
   return (
     <div className="page">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={true}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={confirmModal.onCancel}
+          confirmText={confirmModal.confirmText}
+          cancelText={confirmModal.cancelText}
+        />
+      )}
+      
       <h2>Mağaza paneli</h2>
-      <div className="card" style={{marginBottom:12}}>
-        <div className="card-header">
-          <h3>Daxil ol</h3>
+      <div className="card auth-card" style={{marginBottom:12}}>
+        <div className="card-header auth-card-header">
+          <h3 className="auth-card-title">{!token ? 'Daxil ol' : 'Hesab'}</h3>
           {token && <button className="btn" onClick={onLogout}>Çıxış et</button>}
         </div>
         {!token ? (
-          <StoreLogin onLogin={(t)=>{ localStorage.setItem('store_token', t); setToken(t) }} />
+          <div className="card-body auth-card-body auth-card-body--login">
+            <StoreLogin onLogin={(t)=>{ localStorage.setItem('store_token', t); setToken(t) }} />
+          </div>
         ) : (
-          <div className="card-body">
-            <div className="row"><strong>Hesab:</strong> {me?.email || '—'}</div>
-            <div className="row"><strong>Mağaza:</strong> {me?.name || '—'}</div>
+          <div className="card-body auth-card-body">
+            <div className="auth-meta"><span className="label">Hesab</span><span className="value">{me?.email || '—'}</span></div>
+            <div className="auth-meta"><span className="label">Mağaza</span><span className="value">{me?.name || '—'}</span></div>
           </div>
         )}
       </div>
@@ -77,47 +110,25 @@ const MagazaPanel = () => {
       {token && (
         <div className="form-row">
           <label>Mağaza seç</label>
-          <select value={selectedStoreId} onChange={(e) => setSelectedStoreId(e.target.value)}>
-            <option value="">Seçiniz</option>
-            {stores.map((s) => (
-              <option value={s._id || s.id} key={s._id || s.id}>{s.name}</option>
-            ))}
-          </select>
+            
         </div>
       )}
 
       {token && currentStore ? (
         <>
+        <br />
           <div className="card">
             <div className="card-header"><h3>{currentStore.name}</h3></div>
             <div className="card-body">
-              <div className="row"><strong>Status:</strong> {currentStore.active ? 'Aktiv' : 'Passiv'}</div>
+              <div className="row"><strong>Status:</strong> {currentStore.active ? 'Aktiv' : 'Passiv'}</div> <br />
               <button className="btn btn-primary" onClick={toggleStoreActive}>{currentStore.active ? 'Passiv et' : 'Aktiv et'}</button>
             </div>
           </div>
+          <br />
 
-          <h3>Məhsul əlavə et</h3>
-          <form className="form" onSubmit={handleAddProduct}>
-            <div className="form-row">
-              <label>Məhsul adı</label>
-              <input required value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
-            </div>
-            <div className="form-row two">
-              <div>
-                <label>Qiymət</label>
-                <input type="number" step="0.01" required value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
-              </div>
-              <div>
-                <label>Stok</label>
-                <input type="number" required value={product.stock} onChange={(e) => setProduct({ ...product, stock: e.target.value })} />
-              </div>
-            </div>
-            <div className="form-row">
-              <label>Şəkil (tək fayl)</label>
-              <input type="file" accept="image/*" onChange={(e) => setProduct({ ...product, file: e.target.files?.[0] || null })} />
-            </div>
-            <button className="btn btn-primary" type="submit">Əlavə et</button>
-          </form>
+          <div className="card-actions">
+            <a className="btn btn-primary" href="/urun-ekle">Məhsul əlavə et</a>
+          </div>
 
           <h3>Ürünler</h3>
           <div className="cards">
@@ -127,6 +138,8 @@ const MagazaPanel = () => {
                 product={p}
                 storeId={currentStore._id || currentStore.id}
                 token={token}
+                onNotification={setNotification}
+                onConfirmModal={setConfirmModal}
               />
             ))}
           </div>
@@ -177,7 +190,7 @@ const StoreLogin = ({ onLogin }) => {
   )
 }
 
-const ProductRow = ({ product, storeId, token }) => {
+const ProductRow = ({ product, storeId, token, onNotification, onConfirmModal }) => {
   const [price, setPrice] = useState(product.price)
   const [stock, setStock] = useState(product.stock)
   const [saving, setSaving] = useState(false)
@@ -186,14 +199,29 @@ const ProductRow = ({ product, storeId, token }) => {
     setSaving(true)
     try{
       await api.updateProduct(storeId, product._id || product.id, { price: Number(price), stock: Number(stock) }, token)
-      alert('Güncellendi')
+      onNotification({ message: 'Məhsul uğurla yeniləndi!', type: 'success' })
+    } catch (error) {
+      onNotification({ message: 'Yeniləmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
     } finally { setSaving(false) }
   }
 
   const remove = async () => {
-    if(!window.confirm('Silinsin?')) return
-    await api.deleteProduct(storeId, (product._id || product.id), token)
-    window.location.reload()
+    onConfirmModal({
+      title: 'Məhsulu sil',
+      message: 'Bu məhsul həmişəlik silinəcək. Bu əməliyyatı geri ala bilməzsiniz. Davam etmək istəyirsiniz?',
+      onConfirm: async () => {
+        try {
+          await api.deleteProduct(storeId, (product._id || product.id), token)
+          onNotification({ message: 'Məhsul uğurla silindi!', type: 'success' })
+          window.location.reload()
+        } catch (error) {
+          onNotification({ message: 'Silmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
+        }
+      },
+      onCancel: () => {},
+      confirmText: 'Sil',
+      cancelText: 'Ləğv et'
+    })
   }
 
   return (

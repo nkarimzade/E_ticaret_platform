@@ -16,7 +16,6 @@ const Home = () => {
     { q: 'Hesab açmaq üçün yaş məhdudiyyəti varmı?', a: 'Bəli, minimum 18 yaş tələb olunur.' },
     { q: 'Komissiya və ödənişlər necədir?', a: 'Heshop-da ilk ay komissiya yoxdur, sonrakı dövrdə isə minimal komissiya tətbiq olunur.' },
     { q: 'Məhsul əlavə etmək üçün nə etməliyəm?', a: 'Paneldən “Məhsul əlavə et” düyməsini istifadə edin.' },
-    { q: 'Ödənişlər necə köçürülür?', a: 'Ödənişlər bank hesabınıza həftəlik köçürülür.' },
     { q: 'Müştəri dəstəyi necə işləyir?', a: '24/7 canlı dəstək mövcuddur.' },
     { q: 'Mağazanı necə silə bilərəm?', a: 'Paneldən “Mağazanı sil” seçimini istifadə edin.' },
     { q: 'Bir neçə mağaza aça bilərəm?', a: 'Bəli, bir neçə mağaza açmaq mümkündür.' },
@@ -32,7 +31,7 @@ const Home = () => {
           <div className="left">
             <h1>Onlayn Satışa <strong>Asan Başla</strong></h1>
             <p>
-              Öz məhsullarınızı və xidmətlərinizi sürətli, təhlükəsiz və komissiyasız şəkildə satmaq üçün Heshop platformasına qoşulun! Heç bir texniki bilik olmadan, bir neçə dəqiqəyə öz onlayn mağazanızı yaradın və satışlarınızı artırın.
+              Öz məhsullarınızı və xidmətlərinizi sürətli, təhlükəsiz və 8% Komissiya ilə satmaq üçün Heshop platformasına qoşulun! Heç bir texniki bilik olmadan, bir neçə dəqiqəyə öz onlayn mağazanızı yaradın və satışlarınızı artırın.
             </p>
 
             <div className="features">
@@ -46,7 +45,7 @@ const Home = () => {
               </div>
               <div className="feature">
                 <span className="feature-icon"><CiCreditCard1 /></span>
-                <span>Komissiyasız və təhlükəsiz ödəniş sistemi</span>
+                <span>8% Komissiya ilə və təhlükəsiz ödəniş sistemi</span>
               </div>
               <div className="feature">
                 <span className="feature-icon"><CiBitcoin /></span>
@@ -170,6 +169,11 @@ const Home = () => {
                 <span className="faq-toggle-icon">{openIndex === i ? '-' : '+'}</span>
               </button>
               <div className="faq-answer" style={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'center',
+                textAlign: 'center',
+                marginTop: '10px',
                 maxHeight: openIndex === i ? '200px' : '0',
                 opacity: openIndex === i ? 1 : 0,
                 transition: 'max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s',

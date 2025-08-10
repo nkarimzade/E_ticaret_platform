@@ -29,6 +29,9 @@ export const api = {
   // Auth
   login: (email, password) => fetch(`${API_BASE_URL}/api/auth/login`, { method: 'POST', headers: jsonHeaders, body: JSON.stringify({ email, password }) }).then(handle),
   meStore: (token) => fetch(`${API_BASE_URL}/api/me/store`, { headers: { Authorization: `Bearer ${token}` } }).then(handle),
+  // Admin
+  adminListUsers: () => fetch(`${API_BASE_URL}/api/admin/users`).then(handle),
+  adminDeleteUser: (id) => fetch(`${API_BASE_URL}/api/admin/users/${id}`, { method: 'DELETE' }).then(handle),
 }
 
 // Görsel yolu çözücü: backend-relative yolu tam URL'ye çevirir
