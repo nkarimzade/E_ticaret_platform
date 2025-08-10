@@ -1,5 +1,5 @@
 const baseFromEnv = import.meta && import.meta.env && import.meta.env.VITE_API_URL
-const DEFAULT_BASE = 'http://localhost:3002'
+const DEFAULT_BASE = 'https://hesen.onrender.com'
 export const API_BASE_URL = baseFromEnv || DEFAULT_BASE
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
