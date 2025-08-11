@@ -40,18 +40,24 @@ const MagazaAc = () => {
     
     try {
       const response = await api.createStore(form)
-      if (response.ok) {
-        setOk(true)
-      } else {
-        const errorData = await response.json()
-        if (errorData.field) {
-          setErrors({ [errorData.field]: errorData.message })
-        } else {
-          setErrors({ general: errorData.message })
-        }
-      }
+      console.log('API Response:', response)
+      setOk(true)
     } catch (error) {
-      setErrors({ general: 'Bağlantı xətası. Zəhmət olmasa yenidən cəhd edin.' })
+      console.error('API Error:', error)
+      if (error.message && error.message.includes('409')) {
+        try {
+          const errorData = JSON.parse(error.message)
+          if (errorData.field) {
+            setErrors({ [errorData.field]: errorData.message })
+          } else {
+            setErrors({ general: errorData.message })
+          }
+        } catch {
+          setErrors({ general: 'Bu e-poçt və ya telefon artıq istifadə olunub.' })
+        }
+      } else {
+        setErrors({ general: 'Bağlantı xətası. Zəhmət olmasa yenidən cəhd edin.' })
+      }
     } finally {
       setIsSubmitting(false)
     }

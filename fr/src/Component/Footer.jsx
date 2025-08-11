@@ -1,7 +1,7 @@
 import React from "react";
 import "./Footer.css";
 
-const Footer = () => {
+export default function Footer() {
   const year = new Date().getFullYear()
   return (
     <footer className="footer">
@@ -57,6 +57,4 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}
