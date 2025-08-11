@@ -65,11 +65,25 @@ const ProductSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     color: { type: String, default: '' },
     size: { type: String, default: '' },
+    category: { type: String, enum: ['kadin', 'erkek'], default: 'kadin' },
+    productCategory: { type: String, enum: ['giyim', 'ayakkabi', 'aksesuar', 'makyaj', 'parfum', 'elektronik'], default: 'giyim' },
     colors: { type: [String], default: [] },
     sizes: { type: [String], default: [] },
     campaigns: { type: [String], default: [] },
     attributes: { type: Object, default: {} },
     addedAt: { type: Date, default: Date.now }, // Eklenme tarihi
+  },
+  { timestamps: true }
+)
+
+const CommentSchema = new mongoose.Schema(
+  {
+    productId: { type: String, required: true },
+    storeId: { type: String, required: true },
+    userName: { type: String, required: true },
+    stars: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
   },
   { timestamps: true }
 )
@@ -107,6 +121,7 @@ StoreSchema.set('toJSON', {
 })
 
 const Store = mongoose.model('Store', StoreSchema)
+const Comment = mongoose.model('Comment', CommentSchema)
 
 // Routes
 app.post('/api/stores', async (req, res) => {
@@ -248,7 +263,7 @@ app.post('/api/stores/:id/toggle', async (req, res) => {
 app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { storeId } = req.params
-    const { name, price, discountPrice, maxQty, stock, description, color, size } = req.body || {}
+    const { name, price, discountPrice, maxQty, stock, description, color, size, category, productCategory } = req.body || {}
     if (!name || price === undefined || stock === undefined) {
       return res.status(400).json({ message: 'Ürün bilgileri eksik.' })
     }
@@ -303,6 +318,8 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
       description: description || '',
       color: color || '',
       size: size || '',
+      category: category || 'kadin',
+      productCategory: productCategory || 'giyim',
       colors: colorsArr,
       sizes: sizesArr,
       campaigns: campaignsArr,
@@ -512,6 +529,58 @@ app.delete('/api/admin/users/:id', async (req, res) => {
 
 app.get('/health', (_req, res) => res.json({ ok: true }))
 
+// Comment routes
+app.post('/api/comments', async (req, res) => {
+  try {
+    const { productId, storeId, userName, stars, comment } = req.body
+    
+    if (!productId || !storeId || !userName || !stars || !comment) {
+      return res.status(400).json({ message: 'Tüm alanlar zorunludur.' })
+    }
+    
+    if (stars < 1 || stars > 5) {
+      return res.status(400).json({ message: 'Yıldız 1-5 arasında olmalıdır.' })
+    }
+    
+    const newComment = await Comment.create({
+      productId,
+      storeId,
+      userName,
+      stars,
+      comment
+    })
+    
+    res.json(newComment)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.get('/api/comments/:productId', async (req, res) => {
+  try {
+    const { productId } = req.params
+    const comments = await Comment.find({ productId })
+      .sort({ createdAt: -1 })
+      .limit(3) // Sadece son 3 yorumu getir
+    
+    res.json(comments)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.get('/api/comments/:productId/all', async (req, res) => {
+  try {
+    const { productId } = req.params
+    const comments = await Comment.find({ productId })
+      .sort({ createdAt: -1 })
+    
+    res.json(comments)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
 async function start() {
   try {
     await mongoose.connect(MONGODB_URI)
@@ -520,7 +589,7 @@ async function start() {
     const host = mongoose.connection.host
     console.log(`🔌 Bağlantı: mongodb://${host}/${name}`)
     app.listen(PORT, () => {
-      console.log(`API listening on https://hesen.onrender.com`)
+      console.log(`API listening on http://localhost:3002`)
     })
   } catch (e) {
     console.error('❌ MongoDB bağlantısı başarısız:', e?.message || e)

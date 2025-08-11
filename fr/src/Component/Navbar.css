@@ -1,79 +1,16 @@
 /* Import Poppins Font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
-/* Modern Navbar Styles */
-.navbar-top-banner {
-  width: 100vw;
-  min-height: 38px;
-  background: #6200ea;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1001;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 0 40px;
-}
-
-.banner-left {
-  flex: 1;
-  text-align: left;
-}
-
-.banner-right {
-  flex: 1;
-  text-align: right;
-}
-
-.navbar {
-  margin-top: 38px;
-}
-
-.banner-btn {
-  text-decoration: none;
-  color: #fff;
-  background: transparent;
-  padding: 6px 22px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: background 0.2s, color 0.2s;
-  border: 2px solid transparent;
-  display: inline-block;
-}
-.banner-btn:hover {
-  color: #fff;
-}
-
-@media (max-width: 600px) {
-  .navbar-top-banner {
-    flex-direction: row;
-    font-size: 0.95rem;
-    min-height: 40px;
-    padding: 8px 0;
-    gap: 2px;
-  }
-  .banner-left, .banner-right {
-    flex: unset;
-    width: 100%;
-    text-align: center;
-  }
-  .navbar {
-    margin-top: 48px;
-  }
-}
-
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
   padding: 0 24px;
+  border-radius: 20px;
+  margin-top: 20px;
   height: 70px;
   display: flex;
+  margin-bottom: 20px;
   align-items: center;
   justify-content: space-between;
 }
@@ -81,22 +18,6 @@
 /* Logo */
 .navbar-logo {
   flex-shrink: 0;
-}
-
-.logo-text {
-  font-size: 1.4rem;
-  font-weight: 900;
-  color: #6366f1;
-  letter-spacing: -0.025em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
-  font-family: 'Poppins', sans-serif;
-}
-
-.logo-text:hover {
-  color: #1d4ed8;
-  transform: scale(1.05);
 }
 
 /* Desktop Menu */
@@ -108,109 +29,14 @@
   gap: 32px;
 }
 
-.nav-link {
-  color: #374151;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  position: relative;
-  background: transparent;
-  font-family: 'Poppins', sans-serif;
-}
-
-.nav-link:hover {
-  color: #2563eb;
-  transform: translateY(-2px);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: #6366f1;
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after {
-  width: 60%;
-}
-
 /* Desktop Buttons */
 .navbar-buttons {
   display: flex;
   gap: 16px;
   align-items: center;
 }
-/* From Uiverse.io by vinodjangid07 */ 
-.button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 32px;
-  background-color: #6366f1;
-  border: 8px solid #c0dfff;
-  color: white;
-  gap: 8px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.text {
-  font-size: 1.7em;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.svg {
-  padding-top: 5px;
-  height: 100%;
-  width: fit-content;
-}
-.svg svg {
-  width: 50px;
-  height: 30px;
-}
-.button:hover {
-  border: 8px solid #b1d8ff;
-  background-color: #1b7aff;
-}
-.button:active {
-  border: 5px solid #c0dfff;
-}
-.button:hover .svg svg {
-  animation: jello-vertical 0.9s both;
-  transform-origin: left;
-}
 
-@keyframes jello-vertical {
-  0% {
-    transform: scale3d(1, 1, 1);
-  }
-  30% {
-    transform: scale3d(0.75, 1.25, 1);
-  }
-  40% {
-    transform: scale3d(1.25, 0.75, 1);
-  }
-  50% {
-    transform: scale3d(0.85, 1.15, 1);
-  }
-  65% {
-    transform: scale3d(1.05, 0.95, 1);
-  }
-  75% {
-    transform: scale3d(0.95, 1.05, 1);
-  }
-  100% {
-    transform: scale3d(1, 1, 1);
-  }
-}
+
 
 .hamburger {
   display: none;
@@ -370,31 +196,25 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+
   .navbar-menu,
   .navbar-buttons {
     display: none;
   }
-  
+
   .hamburger {
     display: flex;
   }
-  
+
   .mobile-menu {
     display: block;
   }
 }
 
 @media (min-width: 769px) {
-  .mobile-menu { display: none !important; }
+  .mobile-menu {
+    display: none !important;
+  }
 }
 
 
-.footer-section  , .footer-section ul{
-  color: white;
-  list-style: none;
-  text-decoration: none;
-}
-
-.footer-section h2 {
-  font-weight: 400;
-}

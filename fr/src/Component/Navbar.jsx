@@ -32,15 +32,12 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="navbar-top-banner">
-        <a className="banner-left banner-btn" href="/anasayfa">Rəsmi Sayt</a>
-        <a className="banner-right banner-btn" href="/">Satış Platforması</a>
-      </div>
+     
       <nav className="navbar">
         <div className="navbar-container">
           {/* Logo */}
           <div style={{display: 'flex', alignItems: 'center', gap: '50px' }}  className="navbar-logo">
-             <h1>Heshop</h1>
+             <h1><a href="/">Heshop</a></h1>
              <ul className="navbar-menu">
             </ul>
           </div>

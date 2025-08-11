@@ -5,7 +5,7 @@ import Notification from '../Components/Notification'
 const ProductAdd = () => {
   const [token] = useState(localStorage.getItem('store_token') || '')
   const [me, setMe] = useState(null)
-  const [product, setProduct] = useState({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', file: null })
+  const [product, setProduct] = useState({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null })
   const [attributes, setAttributes] = useState({
     Material: '',
     'Dərinin keyfiyyəti': '',
@@ -59,6 +59,8 @@ const ProductAdd = () => {
       if (product.discountPrice) formData.append('discountPrice', String(product.discountPrice))
       if (product.maxQty) formData.append('maxQty', String(product.maxQty))
       formData.append('stock', String(product.stock))
+      formData.append('category', product.category)
+      formData.append('productCategory', product.productCategory)
       // Çoxlu seçimlər istifadə olunur (colors/sizes)
       // Çoklu seçimleri JSON olarak gönder
       if (selectedColors.length > 0) formData.append('colors', JSON.stringify(selectedColors))
@@ -98,6 +100,48 @@ const ProductAdd = () => {
       {error && <div className="muted">{error}</div>}
       <div className="product-add-card">
       <form className="form" onSubmit={submit}>
+        <div className="form-row">
+          <label>Cinsiyyət</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="category"
+                value="kadin"
+                checked={product.category === 'kadin'}
+                onChange={(e) => setProduct({ ...product, category: e.target.value })}
+              />
+              <span>Qadın</span>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="category"
+                value="erkek"
+                checked={product.category === 'erkek'}
+                onChange={(e) => setProduct({ ...product, category: e.target.value })}
+              />
+              <span>Kişi</span>
+            </label>
+          </div>
+        </div>
+        
+        <div className="form-row">
+          <label>Məhsul kateqoriyası</label>
+          <select 
+            value={product.productCategory} 
+            onChange={(e) => setProduct({ ...product, productCategory: e.target.value })}
+            style={{ padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem' }}
+          >
+            <option value="giyim">Geyim</option>
+            <option value="ayakkabi">Ayaqqabı</option>
+            <option value="aksesuar">Aksesuar</option>
+            <option value="makyaj">Makiyaj</option>
+            <option value="parfum">Ətir</option>
+            <option value="elektronik">Elektronika</option>
+          </select>
+        </div>
+        
         <div className="form-row">
           <label>Məhsul adı</label>
           <input required value={product.name} onChange={(e)=> setProduct({ ...product, name: e.target.value })} />
@@ -203,6 +247,8 @@ const ProductAdd = () => {
             })}
           </div>
         </div>
+
+        
         <div className="form-row form-section">
           <label>Təsvir</label>
           <textarea rows={4} value={product.description} onChange={(e)=> setProduct({ ...product, description: e.target.value })} />

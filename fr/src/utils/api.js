@@ -1,5 +1,5 @@
 const baseFromEnv = import.meta && import.meta.env && import.meta.env.VITE_API_URL
-const DEFAULT_BASE = 'https://hesen.onrender.com'
+const DEFAULT_BASE = 'http://localhost:3002'
 export const API_BASE_URL = baseFromEnv || DEFAULT_BASE
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
@@ -32,6 +32,10 @@ export const api = {
   // Admin
   adminListUsers: () => fetch(`${API_BASE_URL}/api/admin/users`).then(handle),
   adminDeleteUser: (id) => fetch(`${API_BASE_URL}/api/admin/users/${id}`, { method: 'DELETE' }).then(handle),
+  // Comments
+  createComment: (commentData) => fetch(`${API_BASE_URL}/api/comments`, { method: 'POST', headers: jsonHeaders, body: JSON.stringify(commentData) }).then(handle),
+  getComments: (productId) => fetch(`${API_BASE_URL}/api/comments/${productId}`).then(handle),
+  getAllComments: (productId) => fetch(`${API_BASE_URL}/api/comments/${productId}/all`).then(handle),
 }
 
 // Görsel yolu çözücü: backend-relative yolu tam URL'ye çevirir
