@@ -1,0 +1,7 @@
+# Tüm .env dosyalarını yoksay
+*.env
+
+# Node.js için tipik gereksiz dosyalar
+node_modules/
+dist/
+build/

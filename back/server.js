@@ -521,7 +521,7 @@ async function start() {
     const host = mongoose.connection.host
     console.log(`🔌 Bağlantı: mongodb://${host}/${name}`)
     app.listen(PORT, () => {
-      console.log(`🚀 API local'de çalışıyor: http://localhost:${PORT}`)
+      console.log(`API listening on https://hesen.onrender.com`)
     })
   } catch (e) {
     console.error('❌ MongoDB bağlantısı başarısız:', e?.message || e)
