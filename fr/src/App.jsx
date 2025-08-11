@@ -13,6 +13,7 @@ import StoreDetail from './Pages/StoreDetail'
 import ProductDetail from './Pages/ProductDetail'
 import ProductAdd from './Pages/ProductAdd'
 import Debug from './Pages/Debug'
+import ProductEdit from './Pages/ProductEdit'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 const App = () => {
@@ -20,8 +21,8 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/magazalar' element={<Magazalar />} />
+        <Route path='/' element={<Magazalar />} />
+        <Route path='/anasayfa' element={<Home />} />
         <Route path='/magaza-ac' element={<MagazaAc />} />
         <Route path='/admin' element={<AdminLayout />}>
           <Route index element={<Admin />} />
@@ -32,6 +33,7 @@ const App = () => {
         <Route path='/magaza/:id' element={<StoreDetail />} />
         <Route path='/urun/:storeId/:productId' element={<ProductDetail />} />
         <Route path='/urun-ekle' element={<ProductAdd />} />
+        <Route path='/urun-duzenle/:storeId/:productId' element={<ProductEdit />} />
         <Route path='/debug' element={<Debug />} />
       </Routes>
       <Footer />

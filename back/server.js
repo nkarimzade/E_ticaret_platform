@@ -14,7 +14,6 @@ dotenv.config()
 const app = express()
 app.use(cors())
 app.use(express.json())
-// ensure uploads dir (stable path relative to this file) and serve static
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads')
@@ -60,11 +59,17 @@ const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     price: { type: Number, required: true },
+    discountPrice: { type: Number, default: 0 },
+    maxQty: { type: Number, default: 5 },
     stock: { type: Number, required: true },
     image: { type: String, default: '' },
     description: { type: String, default: '' },
     color: { type: String, default: '' },
     size: { type: String, default: '' },
+    colors: { type: [String], default: [] },
+    sizes: { type: [String], default: [] },
+    campaigns: { type: [String], default: [] },
+    attributes: { type: Object, default: {} },
     addedAt: { type: Date, default: Date.now }, // Eklenme tarihi
   },
   { timestamps: true }
@@ -244,7 +249,7 @@ app.post('/api/stores/:id/toggle', async (req, res) => {
 app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { storeId } = req.params
-    const { name, price, stock, description, color, size } = req.body || {}
+    const { name, price, discountPrice, maxQty, stock, description, color, size } = req.body || {}
     if (!name || price === undefined || stock === undefined) {
       return res.status(400).json({ message: 'Ürün bilgileri eksik.' })
     }
@@ -253,15 +258,56 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
     if (String(store.id) !== String(req.auth.storeId)) {
       return res.status(403).json({ message: 'Sadece kendi mağazanıza ürün ekleyebilirsiniz.' })
     }
+    // Çoklu seçim alanlarını esnek şekilde ayrıştır
+    const parseList = (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) return value.map(String).filter(Boolean)
+      if (typeof value === 'string') {
+        try {
+          const maybeJson = JSON.parse(value)
+          if (Array.isArray(maybeJson)) return maybeJson.map(String).filter(Boolean)
+        } catch (_e) {
+          // değilse virgül ile ayrılmış olabilir
+        }
+        return value
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
+      }
+      return []
+    }
+
+    const colorsArr = parseList(req.body.colors)
+    const sizesArr = parseList(req.body.sizes)
+    const campaignsArr = parseList(req.body.campaigns)
+    // attributes JSON/düz string gelebilir
+    let attributesObj = {}
+    if (req.body.attributes) {
+      if (typeof req.body.attributes === 'string') {
+        try { attributesObj = JSON.parse(req.body.attributes) || {} } catch (_e) { attributesObj = {} }
+      } else if (typeof req.body.attributes === 'object') {
+        attributesObj = req.body.attributes
+      }
+    }
     const imagePath = req.file ? `/uploads/${req.file.filename}` : ''
     const productDoc = {
       name,
       price: Number(price),
+      discountPrice: discountPrice !== undefined ? Number(discountPrice) : 0,
+      maxQty: (() => {
+        const n = Number(maxQty)
+        if (Number.isFinite(n)) return Math.max(1, Math.min(5, n))
+        return 5
+      })(),
       stock: Number(stock),
       image: imagePath,
       description: description || '',
       color: color || '',
       size: size || '',
+      colors: colorsArr,
+      sizes: sizesArr,
+      campaigns: campaignsArr,
+      attributes: attributesObj,
       addedAt: new Date(), // Gerçek eklenme tarihi
     }
     store.products.push(productDoc)
@@ -277,7 +323,7 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
 app.patch('/api/products/:storeId/:productId', requireAuth, async (req, res) => {
   try {
     const { storeId, productId } = req.params
-    const { name, price, stock } = req.body || {}
+    const { name, price, discountPrice, maxQty, stock, color, size, colors, sizes, campaigns, description, attributes } = req.body || {}
     const store = await Store.findById(storeId)
     if (!store) return res.status(404).json({ message: 'Mağaza bulunamadı' })
     if (String(store.id) !== String(req.auth.storeId)) {
@@ -287,7 +333,43 @@ app.patch('/api/products/:storeId/:productId', requireAuth, async (req, res) => 
     if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' })
     if (name !== undefined) product.name = name
     if (price !== undefined) product.price = Number(price)
+    if (discountPrice !== undefined) product.discountPrice = Number(discountPrice)
+    if (maxQty !== undefined) {
+      const n = Number(maxQty)
+      product.maxQty = Number.isFinite(n) ? Math.max(1, Math.min(5, n)) : product.maxQty
+    }
     if (stock !== undefined) product.stock = Number(stock)
+    if (description !== undefined) product.description = description
+    if (color !== undefined) product.color = color
+    if (size !== undefined) product.size = size
+    // colors/sizes dizi olarak gelebilir veya JSON string olabilir
+    const parseList = (value) => {
+      if (!value) return []
+      if (Array.isArray(value)) return value.map(String).filter(Boolean)
+      if (typeof value === 'string') {
+        try {
+          const maybeJson = JSON.parse(value)
+          if (Array.isArray(maybeJson)) return maybeJson.map(String).filter(Boolean)
+        } catch (_e) {
+          // değilse virgül ile ayrılmış olabilir
+        }
+        return value
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
+      }
+      return []
+    }
+    if (colors !== undefined) product.colors = parseList(colors)
+    if (sizes !== undefined) product.sizes = parseList(sizes)
+    if (campaigns !== undefined) product.campaigns = parseList(campaigns)
+    if (attributes !== undefined) {
+      if (typeof attributes === 'string') {
+        try { product.attributes = JSON.parse(attributes) || {} } catch (_e) { /* ignore */ }
+      } else if (typeof attributes === 'object') {
+        product.attributes = attributes
+      }
+    }
     await store.save()
     res.json(product)
   } catch (e) {
@@ -439,7 +521,7 @@ async function start() {
     const host = mongoose.connection.host
     console.log(`🔌 Bağlantı: mongodb://${host}/${name}`)
     app.listen(PORT, () => {
-      console.log(`API listening on https://hesen.onrender.com`)
+      console.log(`🚀 API local'de çalışıyor: http://localhost:${PORT}`)
     })
   } catch (e) {
     console.error('❌ MongoDB bağlantısı başarısız:', e?.message || e)

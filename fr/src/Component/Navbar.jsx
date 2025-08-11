@@ -33,8 +33,8 @@ const Navbar = () => {
   return (
     <>
       <div className="navbar-top-banner">
-        <a className="banner-left banner-btn" href="/">Rəsmi Sayt</a>
-        <a className="banner-right banner-btn" href="/magazalar">Satış Platforması</a>
+        <a className="banner-left banner-btn" href="/anasayfa">Rəsmi Sayt</a>
+        <a className="banner-right banner-btn" href="/">Satış Platforması</a>
       </div>
       <nav className="navbar">
         <div className="navbar-container">
@@ -42,7 +42,6 @@ const Navbar = () => {
           <div style={{display: 'flex', alignItems: 'center', gap: '50px' }}  className="navbar-logo">
              <h1>Heshop</h1>
              <ul className="navbar-menu">
-              <li><a href="#faq" className="nav-link">Heshop nədir?</a></li>
             </ul>
           </div>
 

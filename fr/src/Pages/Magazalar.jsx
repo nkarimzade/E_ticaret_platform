@@ -14,6 +14,9 @@ const Magazalar = () => {
       id: p._id || p.id,
       name: p.name,
       price: p.price,
+      discountPrice: p.discountPrice,
+      campaigns: p.campaigns,
+      addedAt: p.addedAt || p.createdAt,
       stock: p.stock,
       image: p.image,
     })))
@@ -32,22 +35,44 @@ const Magazalar = () => {
 
       <div className="product-grid">
         {filtered.length === 0 && <div className="muted">Məhsul tapılmadı.</div>}
-        {filtered.map((p) => (
-          <div key={`${p.storeId}-${p.id}`} className="product-card">
-            <div className="product-image">
-              {p.image ? (<img alt={p.name} src={resolveImageUrl(p.image)} />) : (<div className="muted" style={{fontSize:12}}>Şəkil yoxdur</div>)}
-            </div>
-            <div className="product-info">
-              <div className="product-title">{p.name}</div>
-              <div className="product-price">{p.price} AZN</div>
-              <div className="product-meta">Mağaza: {p.storeName}</div>
-              <div className="card-actions" style={{flexDirection:'column',alignItems:'stretch',marginTop:8}}>
-                <Link className="btn btn-primary" style={{width:'100%'}} to={`/urun/${p.storeId}/${p.id}`}>Məhsul detalları</Link>
-                <Link className="btn btn-outline" style={{width:'100%'}} to={`/magaza/${p.storeId}`}>Mağazaya keç</Link>
+        {filtered.map((p) => {
+          const hasDiscount = p.discountPrice && Number(p.discountPrice) > 0
+          const price = Number(p.price) || 0
+          const dprice = Number(p.discountPrice) || 0
+          const pct = hasDiscount && price > 0 ? Math.round((1 - dprice / price) * 100) : 0
+          const isNew = p.addedAt ? (Date.now() - new Date(p.addedAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false
+          return (
+            <Link key={`${p.storeId}-${p.id}`} className="product-card" to={`/urun/${p.storeId}/${p.id}`} style={{ textDecoration: 'none' }}>
+              {isNew && <span className="ribbon ribbon-new">Yeni</span>}
+              {hasDiscount && pct > 0 && <span className="ribbon ribbon-discount">-{pct}%</span>}
+              <div className="product-image" style={{ aspectRatio: '4 / 5' }}>
+                {p.image ? (<img alt={p.name} src={resolveImageUrl(p.image)} />) : (<div className="muted" style={{fontSize:12}}>Şəkil yoxdur</div>)}
+                <div className="image-cta">Ətraflı bax</div>
               </div>
-            </div>
-          </div>
-        ))}
+              <div className="product-info">
+                <div className="product-title" style={{ cursor: 'pointer' }}>{p.name}</div>
+                <div className="product-price" style={{fontSize:'1.1rem'}}>
+                  {hasDiscount ? (
+                    <>
+                      <span style={{ color: '#ef4444', textDecoration: 'line-through', marginRight: 8 }}>{p.price} AZN</span>
+                      <span style={{ color: '#10B981', fontWeight: 700 }}>{p.discountPrice} AZN</span>
+                    </>
+                  ) : (
+                    <>{p.price} AZN</>
+                  )}
+                </div>
+                {Array.isArray(p.campaigns) && p.campaigns.length > 0 && (
+                  <div className="pill-row">
+                    {p.campaigns.slice(0,2).map((c) => (
+                      <span key={c} className="pill pill-green">{c}</span>
+                    ))}
+                    {p.campaigns.length > 2 && <span className="pill">+{p.campaigns.length - 2}</span>}
+                  </div>
+                )}
+              </div>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

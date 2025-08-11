@@ -11,7 +11,7 @@ const Debug = () => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const response = await fetch('https://hesen.onrender.com/api/debug/stores')
+        const response = await fetch('http://localhost:3002/api/debug/stores')
         const data = await response.json()
         setStores(data)
       } catch (error) {
@@ -26,13 +26,13 @@ const Debug = () => {
   const handleActivateApproved = async () => {
     setActivating(true)
     try {
-      const response = await fetch('https://hesen.onrender.com/api/debug/activate-approved', {
+      const response = await fetch('http://localhost:3002/api/debug/activate-approved', {
         method: 'POST'
       })
       const result = await response.json()
       setNotification({ message: result.message, type: 'success' })
       // Sayfayı yenile
-      const storesResponse = await fetch('https://hesen.onrender.com/api/debug/stores')
+      const storesResponse = await fetch('http://localhost:3002/api/debug/stores')
       const storesData = await storesResponse.json()
       setStores(storesData)
     } catch (error) {
@@ -45,13 +45,13 @@ const Debug = () => {
   const handleApproveAllPending = async () => {
     setApproving(true)
     try {
-      const response = await fetch('https://hesen.onrender.com/api/debug/approve-all-pending', {
+      const response = await fetch('http://localhost:3002/api/debug/approve-all-pending', {
         method: 'POST'
       })
       const result = await response.json()
       setNotification({ message: result.message, type: 'success' })
       // Sayfayı yenile
-      const storesResponse = await fetch('https://hesen.onrender.com/api/debug/stores')
+      const storesResponse = await fetch('http://localhost:3002/api/debug/stores')
       const storesData = await storesResponse.json()
       setStores(storesData)
     } catch (error) {

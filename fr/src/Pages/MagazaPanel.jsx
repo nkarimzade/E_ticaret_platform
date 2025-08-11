@@ -245,7 +245,10 @@ const ProductRow = ({ product, storeId, token, onNotification, onConfirmModal })
           </div>
         </div>
         <div className="product-row-actions">
-          <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? 'Yüklənir...' : 'Yenilə'}</button>
+          <div style={{display:'flex',gap:8}}>
+            <a className="btn" href={`/urun-duzenle/${storeId}/${product._id || product.id}`}>Detaylı yenilə</a>
+            <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? 'Yüklənir...' : 'Yenilə'}</button>
+          </div>
           <button className="btn btn-danger" onClick={remove}>Sil</button>
         </div>
       </div>
