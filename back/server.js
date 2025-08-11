@@ -16,13 +16,12 @@ app.use(cors())
 app.use(express.json())
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const UPLOADS_DIR = path.join(__dirname, '..', 'uploads')
-const LEGACY_UPLOADS_DIR = path.join(__dirname, 'uploads')
+// Sadece back/uploads klasöründen servis et
+const UPLOADS_DIR = path.join(__dirname, 'uploads')
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true })
 }
-// Serve both new and legacy upload locations under the same route
-app.use('/uploads', express.static(UPLOADS_DIR), express.static(LEGACY_UPLOADS_DIR))
+app.use('/uploads', express.static(UPLOADS_DIR))
 
 const PORT = process.env.PORT || 3002
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hesen'
