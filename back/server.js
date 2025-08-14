@@ -24,7 +24,16 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 app.use('/uploads', express.static(UPLOADS_DIR))
 
 const PORT = process.env.PORT || 3002
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/hesen'
+let MONGODB_URI = process.env.MONGODB_URI
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true'
+if (!MONGODB_URI) {
+  if (isProduction) {
+    console.error('❌ MONGODB_URI tanımlı değil. Production ortamında MongoDB bağlantı cümlenizi (Atlas vb.) environment variable olarak ekleyin.')
+    process.exit(1)
+  } else {
+    MONGODB_URI = 'mongodb://127.0.0.1:27017/hesen'
+  }
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
 
 // Multer setup for single image upload (UPLOAD BEFORE ROUTES)
