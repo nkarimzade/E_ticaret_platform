@@ -78,7 +78,9 @@ const ProductDetail = () => {
       selectedQty ? `Ədəd: ${selectedQty}` : null,
     ].filter(Boolean)
     const extraText = extra.length ? `\n${extra.join(' | ')}` : ''
-    const text = `Salam, ${store.name} mağazasından \"${p.name}\" (${p.price} AZN) məhsulunu sifariş etmək istəyirəm.${extraText}`
+    const baseUrl = window.location.origin
+    const productLink = `${baseUrl}/urun/${storeId}/${productId}`
+    const text = `Salam, ${store.name} mağazasından \"${p.name}\" (${p.price} AZN) məhsulunu sifariş etmək istəyirəm.${extraText}\n\nMəhsul linki: ${productLink}`
     const enc = encodeURIComponent(text)
     const phone = waPhone.replace(/\D+/g, '')
     return `https://wa.me/${phone}?text=${enc}`
@@ -264,6 +266,8 @@ const ProductDetail = () => {
               </div>
             )}
 
+
+
             {/* Yorum yazma bölümü */}
             <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e5e7eb' }}>
               <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, marginBottom: 16 }}>Rəy yazın</h3>
@@ -408,7 +412,7 @@ const ProductDetail = () => {
               </div>
             ) : (
               <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
-                <div style={{ color: '#6b7280' }}>Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>
+                <div style={{ color: '#6b7280' }}>İlk rəyi siz yazın!</div>
               </div>
             )}
           </div>
@@ -518,6 +522,215 @@ const ProductDetail = () => {
               })()}
             </div>
           </div>
+        </div>
+      </div>
+ <br /><br /><br />
+      {/* Ölçü Tablosu */}
+      <div className="size-chart-card">
+        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, marginBottom: 20 }}>Ölçü Cədvəli</h3>
+        
+        {/* Kadınlar için ölçü tablosu */}
+        <div style={{ marginBottom: 24 }}>
+          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Qadınlar üçün</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.85rem',
+              background: '#fff',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bust (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { size: 'XS', bust: '78-82', waist: '60-64', hip: '84-88', height: '155-160' },
+                  { size: 'S', bust: '82-86', waist: '64-68', hip: '88-92', height: '160-165' },
+                  { size: 'M', bust: '86-90', waist: '68-72', hip: '92-96', height: '165-170' },
+                  { size: 'L', bust: '90-94', waist: '72-76', hip: '96-100', height: '170-175' },
+                  { size: 'XL', bust: '94-98', waist: '76-80', hip: '100-104', height: '175-180' },
+                  { size: 'XXL', bust: '98-102', waist: '80-84', hip: '104-108', height: '180-185' }
+                ].map((row, index) => (
+                  <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.bust}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Erkekler için ölçü tablosu */}
+        <div style={{ marginBottom: 16 }}>
+          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Kişilər üçün</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.85rem',
+              background: '#fff',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Sinə (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { size: 'XS', chest: '88-92', waist: '70-74', hip: '90-94', height: '165-170' },
+                  { size: 'S', chest: '92-96', waist: '74-78', hip: '94-98', height: '170-175' },
+                  { size: 'M', chest: '96-100', waist: '78-82', hip: '98-102', height: '175-180' },
+                  { size: 'L', chest: '100-104', waist: '82-86', hip: '102-106', height: '180-185' },
+                  { size: 'XL', chest: '104-108', waist: '86-90', hip: '106-110', height: '185-190' },
+                  { size: 'XXL', chest: '108-112', waist: '90-94', hip: '110-114', height: '190-195' }
+                ].map((row, index) => (
+                  <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.chest}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Ölçü alma rehberi */}
+        <div style={{ 
+          marginTop: 16, 
+          padding: '12px 16px', 
+          background: '#f0f9ff', 
+          border: '1px solid #bae6fd', 
+          borderRadius: '8px',
+          fontSize: '0.85rem'
+        }}>
+          <div style={{ fontWeight: 600, color: '#0369a1', marginBottom: 4 }}>📏 Ölçü alma təlimatı:</div>
+          <div style={{ color: '#0c4a6e', lineHeight: 1.4 }}>
+            • <strong>Sinə/Bust:</strong> Ən geniş hissəni ölçün<br/>
+            • <strong>Bel:</strong> Göbəyin ətrafını ölçün<br/>
+            • <strong>Kalça:</strong> Ən geniş hissəni ölçün<br/>
+            • <strong>Boy:</strong> Başdan ayağa qədər ölçün
+          </div>
+        </div>
+      </div>
+
+      {/* Dikkatinizi çekebilecek ürünler */}
+      <div className="related-products-section">
+        <h3 style={{ 
+          margin: '40px 0 20px 0', 
+          fontSize: '1.3rem', 
+          fontWeight: 600, 
+          color: '#1f2937',
+          textAlign: 'center'
+        }}>
+          Dikkatinizi çekebilecek ürünler
+        </h3>
+        
+        <div className="related-products-grid">
+          {(() => {
+            // Mevcut ürünü hariç tut, rastgele 5 ürün seç
+            const allProducts = store.products || []
+            const currentProductId = product._id || product.id
+            const otherProducts = allProducts.filter(p => (p._id || p.id) !== currentProductId)
+            
+            // Rastgele karıştır ve ilk 5'ini al
+            const shuffled = otherProducts.sort(() => 0.5 - Math.random())
+            const selectedProducts = shuffled.slice(0, 5)
+            
+            return selectedProducts.map((relatedProduct) => (
+              <div key={relatedProduct._id || relatedProduct.id} className="related-product-card">
+                <div className="related-product-image" onClick={() => navigate(`/urun/${storeId}/${relatedProduct._id || relatedProduct.id}`)}>
+                  {relatedProduct.image ? (
+                    <img 
+                      alt={relatedProduct.name} 
+                      src={resolveImageUrl(relatedProduct.image)} 
+                      style={{ cursor: 'pointer' }}
+                    />
+                  ) : (
+                    <div className="no-image">Şəkil yoxdur</div>
+                  )}
+                  
+                  {/* Kampanyalar */}
+                  {Array.isArray(relatedProduct.campaigns) && relatedProduct.campaigns.length > 0 && (
+                    <div className="related-product-campaigns">
+                      {relatedProduct.campaigns.slice(0, 2).map((campaign) => (
+                        <span key={campaign} className="campaign-badge">
+                          {campaign}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="related-product-info">
+                  <h4 className="related-product-title" onClick={() => navigate(`/urun/${storeId}/${relatedProduct._id || relatedProduct.id}`)}>
+                    {relatedProduct.name}
+                  </h4>
+                  
+                  <div className="related-product-price">
+                    {relatedProduct.discountPrice && Number(relatedProduct.discountPrice) > 0 ? (
+                      <>
+                        <span className="original-price">{relatedProduct.price} AZN</span>
+                        <span className="discount-price">{relatedProduct.discountPrice} AZN</span>
+                      </>
+                    ) : (
+                      <span className="current-price">{relatedProduct.price} AZN</span>
+                    )}
+                  </div>
+                  
+                  <div className="related-product-meta">
+                    <span className="product-category">
+                      {relatedProduct.category === 'kadin' ? 'Qadın' : 'Kişi'} • {relatedProduct.productCategory}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          })()}
+        </div>
+        
+        {/* Daha fazla ürün görme butonu */}
+        <div style={{ textAlign: 'center', marginTop: '30px' }}>
+          <Link 
+            to={`/magaza/${storeId}`}
+            style={{
+              display: 'inline-block',
+              background: '#6366f1',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              transition: 'background-color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#5855eb'}
+            onMouseLeave={(e) => e.target.style.background = '#6366f1'}
+          >
+            Mağazada daha çox məhsul gör
+          </Link>
         </div>
       </div>
 

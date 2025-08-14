@@ -3,6 +3,7 @@ import './CategoryBar.css'
 
 const CategoryBar = ({ selectedCategory, onCategoryChange }) => {
   const categories = [
+    { id: 'tumu', name: 'Tümü' },
     { id: 'kadin', name: 'Qadın' },
     { id: 'erkek', name: 'Kişi' },
     { id: 'ayakkabi', name: 'Ayaqqabı' },

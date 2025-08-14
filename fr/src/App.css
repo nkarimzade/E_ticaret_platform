@@ -356,7 +356,389 @@
 .auth-card-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .auth-card-body--login{padding-top:0}
 .auth-card .auth-meta{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff}
-.auth-card .auth-meta .label{color:#6b7280}
+.auth-card .auth-meta .label{color:#6b7280;}
+
+/* Panel login input centering */
+.page:has(.auth-card) .form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.page:has(.auth-card) .form-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.page:has(.auth-card) .form-row.two {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page:has(.auth-card) .form-row label {
+  text-align: center;
+  width: 100%;
+  font-weight: 600;
+  color: #374151;
+  font-size: 1rem;
+}
+
+.page:has(.auth-card) .form-row input {
+  width: 100%;
+  text-align: center;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.page:has(.auth-card) .btn {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #6366f1;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.page:has(.auth-card) .muted {
+  text-align: center;
+  width: 100%;
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+
+/* Panel dashboard styling */
+.page:has(.auth-card) .card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.page:has(.auth-card) .card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+  border-radius: 12px 12px 0 0;
+}
+
+.page:has(.auth-card) .card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.page:has(.auth-card) .card-body {
+  padding: 20px 24px;
+}
+
+.page:has(.auth-card) .auth-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.page:has(.auth-card) .auth-meta .label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.page:has(.auth-card) .auth-meta .value {
+  color: #374151;
+  font-weight: 500;
+}
+
+.page:has(.auth-card) .btn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 300px;
+  text-align: center;
+}
+
+
+.page:has(.auth-card) .btn-primary {
+  background: #6366f1;
+  width: 100%;
+  color: white;
+}
+
+.page:has(.auth-card) .btn-primary:hover {
+  background: #5855eb;
+}
+
+.page:has(.auth-card) .btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.page:has(.auth-card) .btn-danger:hover {
+  background: #dc2626;
+}
+
+.page:has(.auth-card) .card-actions {
+  margin: 20px 0;
+}
+
+.page:has(.auth-card) .card-actions .btn {
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.page:has(.auth-card) .cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page:has(.auth-card) .product-row-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: start;
+}
+
+.page:has(.auth-card) .product-row-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.page:has(.auth-card) .product-row-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.page:has(.auth-card) .product-row-fields > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page:has(.auth-card) .product-row-fields label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0;
+}
+
+.page:has(.auth-card) .product-row-fields input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.page:has(.auth-card) .product-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.page:has(.auth-card) .product-row-actions .btn {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+.page:has(.auth-card) h3 {
+  margin: 24px 0 16px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Related products styling */
+.related-products-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.related-products-grid {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.related-product-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 180px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.related-product-image {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.related-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.related-product-card:hover .related-product-image img {
+  transform: scale(1.05);
+}
+
+.related-product-image .no-image {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.related-product-campaigns {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campaign-badge {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.related-product-info {
+  padding: 12px;
+  display: block;
+  flex: 1;
+}
+
+.related-product-title {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.related-product-title:hover {
+  color: #6366f1;
+}
+
+.related-product-price {
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.original-price {
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+  margin-right: 8px;
+}
+
+.discount-price {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.current-price {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.related-product-meta {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.product-category {
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .related-products-grid {
+    gap: 12px;
+  }
+  
+  .related-product-card {
+    width: 140px;
+    min-width: 140px;
+  }
+  
+  .related-product-image {
+    height: 100px;
+  }
+  
+  .related-product-info {
+    padding: 8px;
+    display: block;
+  }
+  
+  .related-product-title {
+    font-size: 0.8rem;
+  }
+}
 
 @media (max-width: 700px){
   .auth-card-body{grid-template-columns:1fr}
@@ -398,7 +780,12 @@
 }
 .ribbon{position:absolute;top:10px;left:10px;background:#111827;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;z-index:2}
 .ribbon-discount{background:#ef4444}
-.ribbon-new{left:auto;right:10px;background:#10B981}
+.ribbon-new{left:10px;background:#10B981}
+
+/* İkinci ribbon varsa alt alta düzenle */
+.ribbon + .ribbon {
+  top: 45px;
+}
 
 .product-card::before{
   content:'';
@@ -532,6 +919,7 @@
 .product-card .btn-primary{
   background:#6366f1;
   border:none;
+  width: 100%;
   color:white;
 }
 .product-card .btn-primary:hover{
@@ -667,6 +1055,7 @@
 .product-detail-actions .btn-primary {
   background: #6366f1;
   color: white;
+  
   border-color: #6366f1;
 }
 
@@ -846,5 +1235,500 @@
   margin-top: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
+}
+
+/* Product card favorite button */
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 15;
+  color: #6b7280;
+}
+
+.favorite-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.favorite-btn svg {
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:hover svg {
+  fill: #ef4444;
+}
+
+/* Product actions */
+.product-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.product-actions .btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+/* Product card clickable */
+.product-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Prevent favorite button from triggering card click */
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 15;
+  color: #6b7280;
+}
+
+/* Admin Panel Styles */
+.admin-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.admin-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.admin-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.stat-content h3 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.stat-content p {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.admin-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.admin-action-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  color: inherit;
+}
+
+.action-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.action-content h3 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.action-content p {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.action-arrow {
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-left: auto;
+}
+
+/* Admin Section Styles */
+.admin-section {
+  margin-bottom: 40px;
+}
+
+.admin-section h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.admin-header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.back-button:hover {
+  color: #0056b3;
+  text-decoration: none;
+}
+
+/* Store Cards */
+.stores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.store-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.store-header h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.store-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.store-info strong {
+  color: #333;
+}
+
+.store-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.store-actions .btn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+/* Products Section */
+.products-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.products-section h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* Admin panel ürün kartları için özel CSS */
+.admin-product-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-product-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.admin-product-info h5 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.admin-product-info p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 2px 0;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+/* User Cards */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.user-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.user-header h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.user-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.user-info strong {
+  color: #333;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.user-actions .btn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+/* Button Colors */
+.btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-warning {
+  background: #ffc107;
+  color: #212529;
+  border: none;
+}
+
+.btn-warning:hover {
+  background: #e0a800;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .stores-grid,
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .admin-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
   

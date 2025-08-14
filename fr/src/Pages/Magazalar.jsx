@@ -1,11 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api, resolveImageUrl } from '../utils/api'
 import { Link } from 'react-router-dom'
+import './Magazalar.css'
+import Notification from '../Components/Notification'
 
-const Magazalar = () => {
+const Magazalar = ({ selectedCategory = 'tumu' }) => {
   const [approved, setApproved] = useState([])
   const [q, setQ] = useState('')
+  const [sortBy, setSortBy] = useState('')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [genderFilter, setGenderFilter] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
+  const [notification, setNotification] = useState(null)
+  const userToken = localStorage.getItem('user_token')
+  
   useEffect(() => { (async () => setApproved(await api.listApprovedStores()))() }, [])
+  
   const products = useMemo(() => {
     return approved.flatMap(s => (s.products || []).map(p => ({
       storeId: s._id || s.id,
@@ -19,22 +30,251 @@ const Magazalar = () => {
       addedAt: p.addedAt || p.createdAt,
       stock: p.stock,
       image: p.image,
+      category: p.category,
+      productCategory: p.productCategory,
     })))
   }, [approved])
-  const filtered = useMemo(() => products.filter(p => (p.name||'').toLowerCase().includes(q.toLowerCase()) || (p.storeName||'').toLowerCase().includes(q.toLowerCase())), [products, q])
+  
+  const filtered = useMemo(() => {
+    let filteredProducts = products.filter(p => {
+      // Arama filtresi
+      const searchMatch = (p.name||'').toLowerCase().includes(q.toLowerCase()) || 
+                         (p.storeName||'').toLowerCase().includes(q.toLowerCase())
+      
+      // Kategori filtresi
+      let categoryMatch = true
+      if (selectedCategory === 'tumu') {
+        // Tümü seçildiğinde tüm ürünler gösterilir
+        categoryMatch = true
+      } else if (selectedCategory === 'kadin') {
+        categoryMatch = p.category === 'kadin'
+      } else if (selectedCategory === 'erkek') {
+        categoryMatch = p.category === 'erkek'
+      } else {
+        // Diğer kategoriler için productCategory'yi kontrol et
+        categoryMatch = p.productCategory === selectedCategory
+      }
+
+      // Cinsiyet filtresi
+      const genderMatch = !genderFilter || p.category === genderFilter
+
+      // Fiyat aralığı filtresi
+      const price = Number(p.price) || 0
+      const priceMatch = (!minPrice || price >= Number(minPrice)) && 
+                        (!maxPrice || price <= Number(maxPrice))
+      
+      return searchMatch && categoryMatch && genderMatch && priceMatch
+    })
+
+    // Sıralama
+    if (sortBy === 'price-asc') {
+      filteredProducts.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0))
+    } else if (sortBy === 'price-desc') {
+      filteredProducts.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0))
+    }
+
+    return filteredProducts
+  }, [products, q, selectedCategory, sortBy, minPrice, maxPrice, genderFilter])
+
+  const clearFilters = () => {
+    setSortBy('')
+    setMinPrice('')
+    setMaxPrice('')
+    setGenderFilter('')
+  }
+
+  const hasActiveFilters = sortBy || minPrice || maxPrice || genderFilter
+
+  const handleFavoriteToggle = async (productId, storeId, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!userToken) {
+      setNotification({ message: 'Favorilərə əlavə etmək üçün daxil olmalısınız', type: 'error' })
+      return
+    }
+
+    try {
+      await api.addToFavorites(productId, storeId, userToken)
+      setNotification({ message: 'Məhsul favorilərə əlavə edildi', type: 'success' })
+    } catch (error) {
+      if (error.message && error.message.includes('409')) {
+        // Zaten favorilerde, çıkar
+        try {
+          await api.removeFromFavorites(productId, storeId, userToken)
+          setNotification({ message: 'Məhsul favorilərdən silindi', type: 'success' })
+        } catch (removeError) {
+          setNotification({ message: 'Xəta baş verdi', type: 'error' })
+        }
+      } else {
+        setNotification({ message: 'Xəta baş verdi', type: 'error' })
+      }
+    }
+  }
 
   return (
     <div className="page">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className="store-list-header">
         <h2>Məhsullar</h2>
-        <div className="search-input">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#6b7280" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 110-8 4 4 0 010 8z"></path></svg>
-          <input placeholder="Məhsul və ya mağaza axtar" value={q} onChange={(e)=>setQ(e.target.value)} />
+        <div className="filters-container">
+          {/* Arama */}
+          <div className="search-input-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#6b7280" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 110-8 4 4 0 010 8z"></path></svg>
+            <input placeholder="Məhsul və ya mağaza axtar" value={q} onChange={(e)=>setQ(e.target.value)} />
+          </div>
+
+          {/* Filtreleme Butonu */}
+          <button 
+            className={`filter-button ${hasActiveFilters ? 'active' : ''}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Filtrlər
+            {hasActiveFilters && <span className="filter-badge">{[sortBy, minPrice, maxPrice, genderFilter].filter(Boolean).length}</span>}
+          </button>
         </div>
       </div>
 
+      {/* Filtreleme Modal */}
+      {showFilters && (
+        <div className="filter-modal-overlay" onClick={() => setShowFilters(false)}>
+          <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="filter-modal-header">
+              <h3>Filtrlər</h3>
+              <button className="close-button" onClick={() => setShowFilters(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="filter-modal-content">
+              {/* Sıralama */}
+              <div className="filter-section">
+                <h4>Sıralama</h4>
+                <div className="filter-options">
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="sort"
+                      value=""
+                      checked={sortBy === ''}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    />
+                    <span>Standart</span>
+                  </label>
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="sort"
+                      value="price-asc"
+                      checked={sortBy === 'price-asc'}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    />
+                    <span>Qiymət (Artan)</span>
+                  </label>
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="sort"
+                      value="price-desc"
+                      checked={sortBy === 'price-desc'}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    />
+                    <span>Qiymət (Azalan)</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Cinsiyet Filtresi */}
+              <div className="filter-section">
+                <h4>Cinsiyət</h4>
+                <div className="filter-options">
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value=""
+                      checked={genderFilter === ''}
+                      onChange={(e) => setGenderFilter(e.target.value)}
+                    />
+                    <span>Hamısı</span>
+                  </label>
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="kadin"
+                      checked={genderFilter === 'kadin'}
+                      onChange={(e) => setGenderFilter(e.target.value)}
+                    />
+                    <span>Qadın</span>
+                  </label>
+                  <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="erkek"
+                      checked={genderFilter === 'erkek'}
+                      onChange={(e) => setGenderFilter(e.target.value)}
+                    />
+                    <span>Kişi</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Fiyat Aralığı */}
+              <div className="filter-section">
+                <h4>Qiymət Aralığı</h4>
+                <div className="price-range-inputs">
+                  <div className="price-input-group">
+                    <label>Min qiymət</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="price-input"
+                    />
+                  </div>
+                  <div className="price-input-group">
+                    <label>Max qiymət</label>
+                    <input
+                      type="number"
+                      placeholder="1000"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="price-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-modal-footer">
+              <button className="clear-filters-button" onClick={clearFilters}>
+                Filtrləri təmizlə
+              </button>
+              <button className="apply-filters-button" onClick={() => setShowFilters(false)}>
+                Tətbiq et
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="product-grid">
-        {filtered.length === 0 && <div className="muted">Məhsul tapılmadı.</div>}
+        {filtered.length === 0 && <div className="muted">Axtarılan məhsul və ya mağaza tapılmadı.</div>}
         {filtered.map((p) => {
           const hasDiscount = p.discountPrice && Number(p.discountPrice) > 0
           const price = Number(p.price) || 0
@@ -42,33 +282,56 @@ const Magazalar = () => {
           const pct = hasDiscount && price > 0 ? Math.round((1 - dprice / price) * 100) : 0
           const isNew = p.addedAt ? (Date.now() - new Date(p.addedAt).getTime()) < 7 * 24 * 60 * 60 * 1000 : false
           return (
-            <Link key={`${p.storeId}-${p.id}`} className="product-card" to={`/urun/${p.storeId}/${p.id}`} style={{ textDecoration: 'none' }}>
-              {isNew && <span className="ribbon ribbon-new">Yeni</span>}
-              {hasDiscount && pct > 0 && <span className="ribbon ribbon-discount">-{pct}%</span>}
-              <div className="product-image" style={{ aspectRatio: '4 / 5' }}>
-                {p.image ? (<img alt={p.name} src={resolveImageUrl(p.image)} />) : (<div className="muted" style={{fontSize:12}}>Şəkil yoxdur</div>)}
-                <div className="image-cta">Ətraflı bax</div>
-              </div>
-              <div className="product-info">
-                <div className="product-title" style={{ cursor: 'pointer' }}>{p.name}</div>
-                <div className="product-price" style={{fontSize:'1.1rem'}}>
-                  {hasDiscount ? (
-                    <>
-                      <span style={{ color: '#ef4444', textDecoration: 'line-through', marginRight: 8 }}>{p.price} AZN</span>
-                      <span style={{ color: '#10B981', fontWeight: 700 }}>{p.discountPrice} AZN</span>
-                    </>
-                  ) : (
-                    <>{p.price} AZN</>
+            <Link 
+              key={`${p.storeId}-${p.id}`} 
+              to={`/urun/${p.storeId}/${p.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className="product-card">
+                {isNew && <span className="ribbon ribbon-new">Yeni</span>}
+                {hasDiscount && pct > 0 && <span className="ribbon ribbon-discount">-{pct}%</span>}
+                
+                <div className="product-image" style={{ aspectRatio: '4 / 5' }}>
+                  {p.image ? (<img alt={p.name} src={resolveImageUrl(p.image)} />) : (<div className="muted" style={{fontSize:12}}>Şəkil yoxdur</div>)}
+                  <div className="image-cta">
+                    <span>Ətraflı bax</span>
+                  </div>
+                  {userToken && (
+                    <button 
+                      className="favorite-btn"
+                      onClick={(e) => handleFavoriteToggle(p.id, p.storeId, e)}
+                      title="Favorilərə əlavə et"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
                   )}
                 </div>
-                {Array.isArray(p.campaigns) && p.campaigns.length > 0 && (
-                  <div className="pill-row">
-                    {p.campaigns.slice(0,2).map((c) => (
-                      <span key={c} className="pill pill-green">{c}</span>
-                    ))}
-                    {p.campaigns.length > 2 && <span className="pill">+{p.campaigns.length - 2}</span>}
+                
+                <div className="product-info">
+                  <div className="product-title">
+                    {p.name}
                   </div>
-                )}
+                  <div className="product-price" style={{fontSize:'1.1rem'}}>
+                    {hasDiscount ? (
+                      <>
+                        <span style={{ color: '#ef4444', textDecoration: 'line-through', marginRight: 8 }}>{p.price} AZN</span>
+                        <span style={{ color: '#10B981', fontWeight: 700 }}>{p.discountPrice} AZN</span>
+                      </>
+                    ) : (
+                      <>{p.price} AZN</>
+                    )}
+                  </div>
+                  {Array.isArray(p.campaigns) && p.campaigns.length > 0 && (
+                    <div className="pill-row">
+                      {p.campaigns.slice(0,2).map((c) => (
+                        <span key={c} className="pill pill-green">{c}</span>
+                      ))}
+                      {p.campaigns.length > 2 && <span className="pill">+{p.campaigns.length - 2}</span>}
+                    </div>
+                  )}
+                </div>
               </div>
             </Link>
           )

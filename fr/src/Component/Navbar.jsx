@@ -3,6 +3,36 @@ import './Navbar.css'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [user, setUser] = useState(null)
+  const [userToken, setUserToken] = useState(localStorage.getItem('user_token'))
+
+  // Kullanıcı durumunu kontrol et
+  useEffect(() => {
+    const checkUser = async () => {
+      const token = localStorage.getItem('user_token')
+      if (token) {
+        try {
+          // Burada kullanıcı bilgilerini API'den alabiliriz
+          // Şimdilik sadece token'ı kontrol ediyoruz
+          setUserToken(token)
+        } catch (error) {
+          localStorage.removeItem('user_token')
+          setUserToken(null)
+        }
+      } else {
+        setUserToken(null)
+      }
+    }
+
+    checkUser()
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user_token')
+    setUserToken(null)
+    setUser(null)
+    window.location.reload() // Sayfayı yenile
+  }
 
   // Hamburger menü dışına tıklandığında kapatma
   const handleOverlayClick = (e) => {
@@ -44,7 +74,18 @@ const Navbar = () => {
 
           {/* Desktop Buttons */}
           <div className="navbar-buttons">
-            <a className="btn btn-outline" href="/panel">Daxil ol</a>
+            {userToken ? (
+              <>
+                <a className="btn btn-outline" href="/favorites">Favorilər</a>
+                <button className="btn btn-outline" onClick={handleLogout}>Çıxış</button>
+              </>
+            ) : (
+              <>
+                <a className="btn btn-outline" href="/giris">Daxil ol</a>
+                <a className="btn btn-primary" href="/kayit">Qeydiyyat</a>
+              </>
+            )}
+            <a className="btn btn-outline" href="/panel">Mağazana Daxil ol</a>
             <a className="btn btn-primary" href="/magaza-ac">Mağaza aç</a>
           </div>
 
@@ -79,7 +120,18 @@ const Navbar = () => {
             </ul>
 
             <div className="mobile-buttons">
-              <a className="btn btn-outline" href="/panel" onClick={() => setIsOpen(false)}>Daxil ol</a>
+              {userToken ? (
+                <>
+                  <a className="btn btn-outline" href="/favorites" onClick={() => setIsOpen(false)}>Favorilər</a>
+                  <button className="btn btn-outline" onClick={() => { handleLogout(); setIsOpen(false); }}>Çıxış</button>
+                </>
+              ) : (
+                <>
+                  <a className="btn btn-outline" href="/giris" onClick={() => setIsOpen(false)}>Daxil ol</a>
+                  <a className="btn btn-primary" href="/kayit" onClick={() => setIsOpen(false)}>Qeydiyyat</a>
+                </>
+              )}
+              <a className="btn btn-outline" href="/panel" onClick={() => setIsOpen(false)}>Mağazana Daxil ol</a>
               <a className="btn btn-primary" href="/magaza-ac" onClick={() => setIsOpen(false)}>Mağaza aç</a>
             </div>
           </div>

@@ -53,6 +53,29 @@ mongoose.connection.on('disconnected', () => {
   console.warn('⚠️ MongoDB bağlantısı kesildi')
 })
 
+// Admin authentication middleware
+const requireAdminAuth = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Admin token tələb olunur' })
+    }
+    
+    const token = authHeader.substring(7)
+    const decoded = jwt.verify(token, JWT_SECRET)
+    
+    if (!decoded.isAdmin) {
+      return res.status(403).json({ message: 'Admin səlahiyyəti tələb olunur' })
+    }
+    
+    req.admin = decoded
+    next()
+  } catch (error) {
+    console.error('Admin auth error:', error)
+    res.status(401).json({ message: 'Etibarsız admin token' })
+  }
+}
+
 // Schemas
 const ProductSchema = new mongoose.Schema(
   {
@@ -103,6 +126,22 @@ const StoreSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+const UserSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, lowercase: true, trim: true, unique: true, index: true },
+    passwordHash: { type: String, required: true },
+    phone: { type: String, default: '' },
+    favorites: [{ 
+      productId: { type: String, required: true },
+      storeId: { type: String, required: true },
+      addedAt: { type: Date, default: Date.now }
+    }],
+    active: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+)
+
 // Ensure `id` in JSON for frontend compatibility
 StoreSchema.set('toJSON', {
   virtuals: true,
@@ -120,8 +159,19 @@ StoreSchema.set('toJSON', {
   },
 })
 
+UserSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    ret.id = ret._id
+    delete ret.passwordHash
+    return ret
+  },
+})
+
 const Store = mongoose.model('Store', StoreSchema)
 const Comment = mongoose.model('Comment', CommentSchema)
+const User = mongoose.model('User', UserSchema)
 
 // Routes
 app.post('/api/stores', async (req, res) => {
@@ -393,6 +443,37 @@ app.patch('/api/products/:storeId/:productId', requireAuth, async (req, res) => 
   }
 })
 
+// Update product image (owner)
+app.patch('/api/products/:storeId/:productId/image', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const { storeId, productId } = req.params
+    const store = await Store.findById(storeId)
+    if (!store) return res.status(404).json({ message: 'Mağaza bulunamadı' })
+    if (String(store.id) !== String(req.auth.storeId)) {
+      return res.status(403).json({ message: 'Sadece kendi mağazanızı düzenleyebilirsiniz.' })
+    }
+    const product = store.products.id(productId)
+    if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' })
+    
+    if (!req.file) return res.status(400).json({ message: 'Görsel dosyası gerekli' })
+    
+    // Eski görseli sil
+    if (product.image) {
+      const oldImagePath = path.join(UPLOADS_DIR, product.image)
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath)
+      }
+    }
+    
+    // Yeni görseli kaydet
+    product.image = req.file.filename
+    await store.save()
+    res.json(product)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
 // Delete a product (owner)
 app.delete('/api/products/:storeId/:productId', requireAuth, async (req, res) => {
   try {
@@ -436,6 +517,181 @@ app.post('/api/auth/login', async (req, res) => {
     if (!ok) return res.status(401).json({ message: 'Geçersiz kimlik' })
     const token = jwt.sign({ storeId: store.id, email: store.email }, JWT_SECRET, { expiresIn: '7d' })
     res.json({ token, store: store.toJSON() })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// User Registration
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body || {}
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Ad, e-posta və şifrə tələb olunur.' })
+    }
+    
+    // E-posta kontrolü
+    const emailExists = await User.findOne({ email: email.toLowerCase() })
+    if (emailExists) {
+      return res.status(409).json({ 
+        message: 'Bu e-posta ünvanı artıq istifadə olunub.',
+        field: 'email'
+      })
+    }
+    
+    const passwordHash = await bcrypt.hash(password, 10)
+    const user = await User.create({ name, email, phone: phone || '', passwordHash })
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' })
+    res.json({ token, user: user.toJSON() })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// User Login
+app.post('/api/users/login', async (req, res) => {
+  try {
+    const { email, password } = req.body || {}
+    if (!email || !password) return res.status(400).json({ message: 'E-posta və şifrə tələb olunur' })
+    const user = await User.findOne({ email: email.toLowerCase() })
+    if (!user || !user.passwordHash) return res.status(401).json({ message: 'Yanlış e-posta və ya şifrə' })
+    const ok = await bcrypt.compare(password, user.passwordHash)
+    if (!ok) return res.status(401).json({ message: 'Yanlış e-posta və ya şifrə' })
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' })
+    res.json({ token, user: user.toJSON() })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Current user by token
+app.get('/api/me/user', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.auth.userId)
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
+    res.json(user.toJSON())
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Add to favorites
+app.post('/api/favorites', requireAuth, async (req, res) => {
+  try {
+    const { productId, storeId } = req.body || {}
+    if (!productId || !storeId) {
+      return res.status(400).json({ message: 'Məhsul ID və mağaza ID tələb olunur' })
+    }
+    
+    const user = await User.findById(req.auth.userId)
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
+    
+    // Check if already in favorites
+    const existingFavorite = user.favorites.find(fav => 
+      fav.productId === productId && fav.storeId === storeId
+    )
+    
+    if (existingFavorite) {
+      return res.status(409).json({ message: 'Bu məhsul artıq favorilərdədir' })
+    }
+    
+    user.favorites.push({ productId, storeId })
+    await user.save()
+    
+    res.json({ message: 'Məhsul favorilərə əlavə edildi', favorites: user.favorites })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Remove from favorites
+app.delete('/api/favorites/:productId/:storeId', requireAuth, async (req, res) => {
+  try {
+    const { productId, storeId } = req.params
+    
+    const user = await User.findById(req.auth.userId)
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
+    
+    user.favorites = user.favorites.filter(fav => 
+      !(fav.productId === productId && fav.storeId === storeId)
+    )
+    await user.save()
+    
+    res.json({ message: 'Məhsul favorilərdən silindi', favorites: user.favorites })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Get user favorites
+app.get('/api/favorites', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.auth.userId)
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
+    
+    // Get favorite products with details
+    const favoriteProducts = []
+    for (const favorite of user.favorites) {
+      const store = await Store.findById(favorite.storeId)
+      if (store) {
+        const product = store.products.id(favorite.productId)
+        if (product) {
+          favoriteProducts.push({
+            ...product.toObject(),
+            id: product._id,
+            storeName: store.name,
+            storeId: store.id,
+            addedToFavorites: favorite.addedAt
+          })
+        }
+      }
+    }
+    
+    res.json(favoriteProducts)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Create comment
+app.post('/api/comments', async (req, res) => {
+  try {
+    const { productId, storeId, userName, stars, comment } = req.body || {}
+    if (!productId || !storeId || !userName || !stars || !comment) {
+      return res.status(400).json({ message: 'Bütün sahələr tələb olunur' })
+    }
+    
+    const newComment = await Comment.create({
+      productId,
+      storeId,
+      userName,
+      stars,
+      comment
+    })
+    
+    res.json(newComment.toJSON())
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Get comments for a product
+app.get('/api/comments/:productId', async (req, res) => {
+  try {
+    const { productId } = req.params
+    const comments = await Comment.find({ productId }).sort({ createdAt: -1 })
+    res.json(comments.map(c => c.toJSON()))
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Get all comments for a product (admin)
+app.get('/api/comments/:productId/all', async (req, res) => {
+  try {
+    const { productId } = req.params
+    const comments = await Comment.find({ productId }).sort({ createdAt: -1 })
+    res.json(comments.map(c => c.toJSON()))
   } catch (e) {
     res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
   }
@@ -497,7 +753,7 @@ app.delete('/api/admin/products/:storeId/:productId', async (req, res) => {
 })
 
 // Admin: list users (store accounts)
-app.get('/api/admin/users', async (_req, res) => {
+app.get('/api/admin/users', requireAdminAuth, async (_req, res) => {
   try {
     const stores = await Store.find({}, 'email owner name phone status createdAt').sort({ createdAt: -1 })
     const users = stores.map((s) => ({
@@ -515,8 +771,18 @@ app.get('/api/admin/users', async (_req, res) => {
   }
 })
 
+// Admin: list registered users (not store owners)
+app.get('/api/admin/registered-users', requireAdminAuth, async (_req, res) => {
+  try {
+    const users = await User.find({}, 'name email phone active favorites createdAt').sort({ createdAt: -1 })
+    res.json(users.map(u => u.toJSON()))
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
 // Admin: delete user (deletes store account)
-app.delete('/api/admin/users/:id', async (req, res) => {
+app.delete('/api/admin/users/:id', requireAdminAuth, async (req, res) => {
   try {
     const { id } = req.params
     const deleted = await Store.findByIdAndDelete(id)
@@ -527,59 +793,99 @@ app.delete('/api/admin/users/:id', async (req, res) => {
   }
 })
 
-app.get('/health', (_req, res) => res.json({ ok: true }))
-
-// Comment routes
-app.post('/api/comments', async (req, res) => {
+// Admin: delete registered user
+app.delete('/api/admin/registered-users/:id', requireAdminAuth, async (req, res) => {
   try {
-    const { productId, storeId, userName, stars, comment } = req.body
+    const { id } = req.params
+    const deleted = await User.findByIdAndDelete(id)
+    if (!deleted) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
+    res.json({ ok: true })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Admin: toggle user status
+app.post('/api/admin/registered-users/:id/toggle', requireAdminAuth, async (req, res) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id)
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
     
-    if (!productId || !storeId || !userName || !stars || !comment) {
-      return res.status(400).json({ message: 'Tüm alanlar zorunludur.' })
-    }
+    user.active = !user.active
+    await user.save()
     
-    if (stars < 1 || stars > 5) {
-      return res.status(400).json({ message: 'Yıldız 1-5 arasında olmalıdır.' })
-    }
+    res.json({ id: user.id, active: user.active })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Admin: delete product from store
+app.delete('/api/admin/products/:storeId/:productId', requireAdminAuth, async (req, res) => {
+  try {
+    const { storeId, productId } = req.params
+    const result = await Store.updateOne(
+      { _id: storeId },
+      { $pull: { products: { _id: productId } } }
+    )
+    if (result.matchedCount === 0) return res.status(404).json({ message: 'Mağaza tapılmadı' })
+    res.json({ ok: true, removed: result.modifiedCount > 0 })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Admin authentication
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { username, password } = req.body
     
-    const newComment = await Comment.create({
-      productId,
-      storeId,
-      userName,
-      stars,
-      comment
+    // Debug log
+    console.log('Admin login attempt:', { 
+      receivedUsername: username, 
+      receivedPassword: password ? '***' : 'undefined',
+      expectedUsername: process.env.ADMIN_USERNAME || 'admin',
+      expectedPassword: process.env.ADMIN_PASSWORD || 'admin123'
     })
     
-    res.json(newComment)
-  } catch (e) {
-    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+    // Basit admin kontrolü (production'da environment variable kullanın)
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'
+    
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const token = jwt.sign(
+        { 
+          isAdmin: true, 
+          username: username 
+        }, 
+        JWT_SECRET, 
+        { expiresIn: '24h' }
+      )
+      
+      console.log('Admin login successful for:', username)
+      res.json({ 
+        success: true, 
+        token, 
+        message: 'Admin girişi başarılı' 
+      })
+    } else {
+      console.log('Admin login failed - credentials mismatch')
+      res.status(401).json({ 
+        success: false, 
+        message: 'Yanlış kullanıcı adı və ya şifrə' 
+      })
+    }
+  } catch (error) {
+    console.error('Admin login error:', error)
+    res.status(500).json({ 
+      success: false, 
+      message: 'Sunucu xətası' 
+    })
   }
 })
 
-app.get('/api/comments/:productId', async (req, res) => {
-  try {
-    const { productId } = req.params
-    const comments = await Comment.find({ productId })
-      .sort({ createdAt: -1 })
-      .limit(3) // Sadece son 3 yorumu getir
-    
-    res.json(comments)
-  } catch (e) {
-    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
-  }
-})
-
-app.get('/api/comments/:productId/all', async (req, res) => {
-  try {
-    const { productId } = req.params
-    const comments = await Comment.find({ productId })
-      .sort({ createdAt: -1 })
-    
-    res.json(comments)
-  } catch (e) {
-    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
-  }
-})
+app.get('/health', (_req, res) => res.json({ ok: true }))
 
 async function start() {
   try {
@@ -589,7 +895,7 @@ async function start() {
     const host = mongoose.connection.host
     console.log(`🔌 Bağlantı: mongodb://${host}/${name}`)
     app.listen(PORT, () => {
-      console.log(`API listening on http://localhost:3002`)
+      console.log(`API listening on port ${PORT}`)
     })
   } catch (e) {
     console.error('❌ MongoDB bağlantısı başarısız:', e?.message || e)
