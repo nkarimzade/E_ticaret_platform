@@ -1,5 +1,5 @@
 # Tüm .env dosyalarını yoksay
-*.env
+.env
 
 # Node.js için tipik gereksiz dosyalar
 node_modules/
