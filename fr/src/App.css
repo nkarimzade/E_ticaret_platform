@@ -1784,6 +1784,58 @@
   box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
+.cart-whatsapp-btn:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.cart-whatsapp-btn:disabled:hover {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* Store order sections */
+.store-order-section {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.store-order-section:last-child {
+  margin-bottom: 0;
+}
+
+.store-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.store-order-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.store-total {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #059669;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Empty cart state */
 .cart-empty {
   text-align: center;

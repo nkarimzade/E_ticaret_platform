@@ -979,6 +979,7 @@ app.get('/api/cart', requireAuth, async (req, res) => {
             discountPrice: product.discountPrice,
             image: product.image,
             storeName: store.name,
+            storePhone: store.phone || '',
             campaigns: product.campaigns,
             addedAt: product.addedAt,
             color: product.color,

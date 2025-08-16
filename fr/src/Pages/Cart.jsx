@@ -9,6 +9,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
+  const [storeDetails, setStoreDetails] = useState({})
   const userToken = localStorage.getItem('user_token')
   const navigate = useNavigate()
 
@@ -19,6 +20,36 @@ const Cart = () => {
       setLoading(false)
     }
   }, [userToken])
+
+  // Mağaza bilgilerini yükle
+  useEffect(() => {
+    const loadStoreDetails = async () => {
+      const storeIds = [...new Set(cartItems.map(item => item.storeId))]
+      const storeData = {}
+      
+      for (const storeId of storeIds) {
+        try {
+          const store = await api.getStore(storeId)
+          storeData[storeId] = {
+            name: store.name,
+            phone: store.phone
+          }
+        } catch (error) {
+          console.error('Mağaza bilgileri yüklenemedi:', error)
+          storeData[storeId] = {
+            name: 'Bilinməyən mağaza',
+            phone: ''
+          }
+        }
+      }
+      
+      setStoreDetails(storeData)
+    }
+
+    if (cartItems.length > 0) {
+      loadStoreDetails()
+    }
+  }, [cartItems])
 
   const loadCart = async () => {
     try {
@@ -82,6 +113,36 @@ const Cart = () => {
       const price = discountPrice > 0 ? discountPrice : regularPrice
       return total + (price * item.quantity)
     }, 0)
+  }
+
+  // Sepet öğelerini mağazalara göre grupla
+  const groupCartByStore = () => {
+    const grouped = {}
+    cartItems.forEach(item => {
+      const storeId = item.storeId
+      const storeInfo = storeDetails[storeId] || {}
+      const storeName = storeInfo.name || item.product?.storeName || 'Bilinməyən mağaza'
+      const storePhone = storeInfo.phone || item.product?.storePhone || ''
+      
+      if (!grouped[storeId]) {
+        grouped[storeId] = {
+          storeName,
+          storePhone,
+          items: [],
+          total: 0
+        }
+      }
+      
+      const discountPrice = parseFloat(item.product?.discountPrice || 0)
+      const regularPrice = parseFloat(item.product?.price || 0)
+      const price = discountPrice > 0 ? discountPrice : regularPrice
+      const itemTotal = price * item.quantity
+      
+      grouped[storeId].items.push(item)
+      grouped[storeId].total += itemTotal
+    })
+    
+    return grouped
   }
 
   if (!userToken) {
@@ -197,25 +258,42 @@ const Cart = () => {
           </div>
           <div className="cart-summary">
             <div className="cart-total">
-              <span>Cəmi:</span>
+              <span>Ümumi cəmi:</span>
               <span>{calculateTotal().toFixed(2)} ₼</span>
             </div>
-            <button
-              className="cart-whatsapp-btn"
-              onClick={() => {
-                const message = `Salam! Səbətimdəki məhsullar:\n\n${cartItems.map(item => {
-                  const discountPrice = parseFloat(item.product?.discountPrice || 0)
-                  const regularPrice = parseFloat(item.product?.price || 0)
-                  const price = discountPrice > 0 ? discountPrice : regularPrice
-                  return `• ${item.product?.name} - ${item.quantity} ədəd - ${price} ₼`
-                }).join('\n')}\n\nCəmi: ${calculateTotal().toFixed(2)} ₼`
+            
+            {/* Mağazalara göre sipariş butonları */}
+            {Object.entries(groupCartByStore()).map(([storeId, storeData]) => (
+              <div key={storeId} className="store-order-section">
+                <div className="store-order-header">
+                  <h4>{storeData.storeName}</h4>
+                  <span className="store-total">{storeData.total.toFixed(2)} ₼</span>
+                </div>
+                <button
+                  className="cart-whatsapp-btn"
+                  onClick={() => {
+                    const message = `Salam! ${storeData.storeName} mağazasından sifariş:\n\n${storeData.items.map(item => {
+                      const discountPrice = parseFloat(item.product?.discountPrice || 0)
+                      const regularPrice = parseFloat(item.product?.price || 0)
+                      const price = discountPrice > 0 ? discountPrice : regularPrice
+                      return `• ${item.product?.name} - ${item.quantity} ədəd - ${price} ₼`
+                    }).join('\n')}\n\nCəmi: ${storeData.total.toFixed(2)} ₼`
 
-                const whatsappUrl = `https://wa.me/994518271550?text=${encodeURIComponent(message)}`
-                window.open(whatsappUrl, '_blank')
-              }}
-            >
-              WhatsApp ilə sifariş ver
-            </button>
+                    // Mağazanın telefon numarasını kullan
+                    const phoneNumber = storeData.storePhone.replace(/[^0-9]/g, '')
+
+                    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+                    window.open(whatsappUrl, '_blank')
+                  }}
+                  disabled={!storeData.storePhone || storeData.storePhone.trim() === ''}
+                >
+                  {storeData.storePhone && storeData.storePhone.trim() !== '' ? 
+                    `${storeData.storeName} ilə sifariş ver` : 
+                    `${storeData.storeName} - Telefon nömrəsi yoxdur`
+                  }
+                </button>
+              </div>
+            ))}
           </div>
         </>
       )}
