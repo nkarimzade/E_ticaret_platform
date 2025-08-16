@@ -13,9 +13,37 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
   const [genderFilter, setGenderFilter] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [notification, setNotification] = useState(null)
+  const [favorites, setFavorites] = useState([])
+  const [cart, setCart] = useState([])
   const userToken = localStorage.getItem('user_token')
   
   useEffect(() => { (async () => setApproved(await api.listApprovedStores()))() }, [])
+  
+  // Favorileri yükle
+  useEffect(() => {
+    if (userToken) {
+      api.getFavorites(userToken)
+        .then(favs => setFavorites(favs.map(f => ({ id: f.id, storeId: f.storeId }))))
+        .catch(err => console.log('Favoriler yüklenemedi:', err))
+    }
+  }, [userToken])
+  
+  // Sepeti yükle
+  useEffect(() => {
+    if (userToken) {
+      api.getCart(userToken)
+        .then(cartData => setCart(cartData || []))
+        .catch(err => console.log('Sepet yüklenemedi:', err))
+    }
+  }, [userToken])
+  
+  const isFavorite = (productId) => {
+    return favorites.some(fav => fav.id === productId)
+  }
+  
+  const isInCart = (productId) => {
+    return cart.some(item => item.id === productId)
+  }
   
   const products = useMemo(() => {
     return approved.flatMap(s => (s.products || []).map(p => ({
@@ -94,21 +122,38 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
       return
     }
 
+    const isCurrentlyFavorite = isFavorite(productId)
+    
     try {
-      await api.addToFavorites(productId, storeId, userToken)
-      setNotification({ message: 'Məhsul favorilərə əlavə edildi', type: 'success' })
-    } catch (error) {
-      if (error.message && error.message.includes('409')) {
-        // Zaten favorilerde, çıkar
-        try {
-          await api.removeFromFavorites(productId, storeId, userToken)
-          setNotification({ message: 'Məhsul favorilərdən silindi', type: 'success' })
-        } catch (removeError) {
-          setNotification({ message: 'Xəta baş verdi', type: 'error' })
-        }
+      if (isCurrentlyFavorite) {
+        await api.removeFromFavorites(productId, storeId, userToken)
+        setFavorites(favorites.filter(fav => fav.id !== productId))
+        setNotification({ message: 'Məhsul favorilərdən çıxarıldı', type: 'success' })
       } else {
-        setNotification({ message: 'Xəta baş verdi', type: 'error' })
+        await api.addToFavorites(productId, storeId, userToken)
+        setFavorites([...favorites, { id: productId, storeId }])
+        setNotification({ message: 'Məhsul favorilərə əlavə edildi', type: 'success' })
       }
+    } catch (error) {
+      console.error('Favori işlemi hatası:', error)
+      setNotification({ message: 'Xəta baş verdi', type: 'error' })
+    }
+  }
+
+  const handleAddToCart = async (productId, storeId, quantity = 1) => {
+    if (!userToken) {
+      setNotification({ message: 'Sepete eklemek için giriş yapmalısınız', type: 'error' })
+      return
+    }
+    try {
+      await api.addToCart(productId, storeId, quantity, userToken)
+      const updatedCart = [...cart, { id: productId, storeId, quantity }]
+      setCart(updatedCart)
+      setNotification({ message: 'Ürün sepete eklendi!', type: 'success' })
+      window.dispatchEvent(new Event('cartUpdated'))
+    } catch (error) {
+      console.error('Sepete ekleme hatası:', error)
+      setNotification({ message: 'Sepete eklenirken hata oluştu', type: 'error' })
     }
   }
 
@@ -298,9 +343,9 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
                   </div>
                   {userToken && (
                     <button 
-                      className="favorite-btn"
+                      className={`favorite-btn ${isFavorite(p.id) ? 'favorite-active' : ''}`}
                       onClick={(e) => handleFavoriteToggle(p.id, p.storeId, e)}
-                      title="Favorilərə əlavə et"
+                      title={isFavorite(p.id) ? "Favorilərdən çıxar" : "Favorilərə əlavə et"}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -330,6 +375,19 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
                       ))}
                       {p.campaigns.length > 2 && <span className="pill">+{p.campaigns.length - 2}</span>}
                     </div>
+                  )}
+                  {userToken && (
+                    <button 
+                      className={`add-to-cart-btn ${isInCart(p.id) ? 'in-cart' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleAddToCart(p.id, p.storeId)
+                      }}
+                      disabled={isInCart(p.id)}
+                    >
+                      {isInCart(p.id) ? 'Sepette' : 'Sepete Ekle'}
+                    </button>
                   )}
                 </div>
               </div>

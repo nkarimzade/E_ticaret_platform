@@ -146,6 +146,12 @@ const UserSchema = new mongoose.Schema(
       storeId: { type: String, required: true },
       addedAt: { type: Date, default: Date.now }
     }],
+    cart: [{
+      productId: { type: String, required: true },
+      storeId: { type: String, required: true },
+      quantity: { type: Number, required: true, min: 1, default: 1 },
+      addedAt: { type: Date, default: Date.now }
+    }],
     active: { type: Boolean, default: true },
   },
   { timestamps: true }
@@ -578,7 +584,18 @@ app.get('/api/me/user', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.auth.userId)
     if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' })
-    res.json(user.toJSON())
+    res.json({ ...user.toJSON(), userType: 'customer' })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+// Current store by token
+app.get('/api/me/store', requireAuth, async (req, res) => {
+  try {
+    const store = await Store.findById(req.auth.storeId)
+    if (!store) return res.status(404).json({ message: 'Mağaza tapılmadı' })
+    res.json({ ...store.toJSON(), userType: 'store' })
   } catch (e) {
     res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
   }
@@ -891,6 +908,154 @@ app.post('/api/admin/login', async (req, res) => {
       success: false, 
       message: 'Sunucu xətası' 
     })
+  }
+})
+
+// Cart endpoints
+app.post('/api/cart/:productId/:storeId', requireAuth, async (req, res) => {
+  try {
+    const { productId, storeId } = req.params
+    const { quantity = 1 } = req.body
+    const userId = req.auth.userId
+
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+
+    // Ürünün var olup olmadığını kontrol et
+    const store = await Store.findById(storeId)
+    if (!store) return res.status(404).json({ message: 'Mağaza bulunamadı' })
+    
+    const product = store.products.id(productId)
+    if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' })
+
+    // Sepette zaten var mı kontrol et
+    const existingItem = user.cart.find(item => 
+      item.productId === productId && item.storeId === storeId
+    )
+
+    if (existingItem) {
+      // Miktarı güncelle
+      existingItem.quantity += quantity
+    } else {
+      // Yeni ürün ekle
+      user.cart.push({
+        productId,
+        storeId,
+        quantity,
+        addedAt: new Date()
+      })
+    }
+
+    await user.save()
+    res.json({ message: 'Ürün sepete eklendi' })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.get('/api/cart', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+
+    // Sepetteki ürünlerin detaylarını getir
+    const cartWithDetails = await Promise.all(
+      user.cart.map(async (item) => {
+        const store = await Store.findById(item.storeId)
+        if (!store) return null
+
+        const product = store.products.id(item.productId)
+        if (!product) return null
+
+        return {
+          productId: item.productId,
+          storeId: item.storeId,
+          quantity: item.quantity,
+          addedAt: item.addedAt,
+          product: {
+            name: product.name,
+            price: product.price,
+            discountPrice: product.discountPrice,
+            image: product.image,
+            storeName: store.name,
+            campaigns: product.campaigns,
+            addedAt: product.addedAt,
+            color: product.color,
+            size: product.size,
+            colors: product.colors,
+            sizes: product.sizes,
+            description: product.description,
+            attributes: product.attributes
+          }
+        }
+      })
+    )
+
+    // Null değerleri filtrele (silinmiş ürünler)
+    const validCartItems = cartWithDetails.filter(item => item !== null)
+    
+    res.json(validCartItems)
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.put('/api/cart/:productId/:storeId', requireAuth, async (req, res) => {
+  try {
+    const { productId, storeId } = req.params
+    const { quantity } = req.body
+    const userId = req.auth.userId
+
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+
+    const cartItem = user.cart.find(item => 
+      item.productId === productId && item.storeId === storeId
+    )
+
+    if (!cartItem) return res.status(404).json({ message: 'Ürün sepette bulunamadı' })
+
+    cartItem.quantity = quantity
+    await user.save()
+    
+    res.json({ message: 'Miktar güncellendi' })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.delete('/api/cart/:productId/:storeId', requireAuth, async (req, res) => {
+  try {
+    const { productId, storeId } = req.params
+    const userId = req.auth.userId
+
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+
+    user.cart = user.cart.filter(item => 
+      !(item.productId === productId && item.storeId === storeId)
+    )
+
+    await user.save()
+    res.json({ message: 'Ürün sepetten kaldırıldı' })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
+app.delete('/api/cart', requireAuth, async (req, res) => {
+  try {
+    const userId = req.auth.userId
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' })
+
+    user.cart = []
+    await user.save()
+    
+    res.json({ message: 'Sepet temizlendi' })
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
   }
 })
 

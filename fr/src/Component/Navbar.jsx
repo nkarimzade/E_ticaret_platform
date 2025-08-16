@@ -1,58 +1,135 @@
+import { FaBasketShopping } from 'react-icons/fa6'
 import React, { useState, useEffect } from 'react'
+import { api } from '../utils/api'
 import './Navbar.css'
+import { MdFavorite } from 'react-icons/md'
+import { IoMdExit } from 'react-icons/io'
+import { FaStore } from 'react-icons/fa'
+import { FaUser } from 'react-icons/fa'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [userToken, setUserToken] = useState(localStorage.getItem('user_token'))
+  const [userType, setUserType] = useState(null) // 'customer', 'store', or null
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [showStoreDropdown, setShowStoreDropdown] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
 
-  // Kullanıcı durumunu kontrol et
+  // İstifadəçi vəziyyətini yoxla
   useEffect(() => {
     const checkUser = async () => {
       const token = localStorage.getItem('user_token')
+      setUserToken(token)
+
       if (token) {
         try {
-          // Burada kullanıcı bilgilerini API'den alabiliriz
-          // Şimdilik sadece token'ı kontrol ediyoruz
-          setUserToken(token)
+          // Əvvəlcə müştəri kimi yoxla
+          const userData = await api.meUser(token)
+          setUserType('customer')
+          setUser(userData)
+          
+          // Səbət sayını da yüklə
+          const cartData = await api.getCart(token)
+          setCartCount(cartData ? cartData.length : 0)
         } catch (error) {
-          localStorage.removeItem('user_token')
-          setUserToken(null)
+          try {
+            // Müştəri deyilsə mağaza kimi yoxla
+            const storeData = await api.meStore(token)
+            setUserType('store')
+            setUser(storeData)
+            setCartCount(0) // Mağazaların səbəti yoxdur
+          } catch (storeError) {
+            console.log('Token etibarsızdır:', error)
+            setUserType(null)
+            setUser(null)
+            setCartCount(0)
+            localStorage.removeItem('user_token')
+            setUserToken(null)
+          }
         }
       } else {
-        setUserToken(null)
+        setUserType(null)
+        setUser(null)
+        setCartCount(0)
       }
     }
 
     checkUser()
   }, [])
 
+  // Səbət yeniləmələrini dinlə
+  useEffect(() => {
+    const updateCartCount = async () => {
+      if (userToken && userType === 'customer') {
+        try {
+          const cartData = await api.getCart(userToken)
+          setCartCount(cartData ? cartData.length : 0)
+        } catch (error) {
+          console.log('Səbət yenilənə bilmədi:', error)
+        }
+      }
+    }
+
+    window.addEventListener('cartUpdated', updateCartCount)
+    return () => window.removeEventListener('cartUpdated', updateCartCount)
+  }, [userToken, userType])
+
   const handleLogout = () => {
     localStorage.removeItem('user_token')
     setUserToken(null)
     setUser(null)
-    window.location.reload() // Sayfayı yenile
+    setUserType(null)
+    setShowUserDropdown(false)
+    setCartCount(0)
+    window.location.href = '/' // Ana sayfaya yönlendir
   }
 
-  // Hamburger menü dışına tıklandığında kapatma
+  // Dropdown xaricində klikləndikdə bağlama
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown')) {
+        setShowUserDropdown(false)
+        setShowStoreDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // ESC tuşu ile kapatma
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowUserDropdown(false)
+        setShowStoreDropdown(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [])
+
+  // Hamburger menyu xaricində klikləndikdə bağlama
   const handleOverlayClick = (e) => {
     if (e.target.classList.contains('mobile-menu')) {
       setIsOpen(false)
     }
   }
 
-  // ESC tuşu ile kapatma
+  // ESC düyməsi ilə bağlama
   useEffect(() => {
     const handleEscKey = (e) => {
       if (e.key === 'Escape') {
         setIsOpen(false)
+        setShowUserDropdown(false)
+        setShowStoreDropdown(false)
       }
     }
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscKey)
-      document.body.style.overflow = 'hidden' // Scroll'u engelle
-    }
+    document.addEventListener('keydown', handleEscKey)
+    document.body.style.overflow = isOpen ? 'hidden' : 'unset' // Scroll'u blokla/aç
 
     return () => {
       document.removeEventListener('keydown', handleEscKey)
@@ -62,32 +139,131 @@ const Navbar = () => {
 
   return (
     <>
-     
+
       <nav className="navbar">
         <div className="navbar-container">
           {/* Logo */}
-          <div style={{display: 'flex', alignItems: 'center', gap: '50px' }}  className="navbar-logo">
-             <h1><a href="/">Heshop</a></h1>
-             <ul className="navbar-menu">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '50px' }} className="navbar-logo">
+            <h1><a href="/">Heshop</a></h1>
+            <ul className="navbar-menu">
             </ul>
           </div>
 
           {/* Desktop Buttons */}
           <div className="navbar-buttons">
-            {userToken ? (
-              <>
-                <a className="btn btn-outline" href="/favorites">Favorilər</a>
-                <button className="btn btn-outline" onClick={handleLogout}>Çıxış</button>
-              </>
-            ) : (
-              <>
-                <a className="btn btn-outline" href="/giris">Daxil ol</a>
-                <a className="btn btn-primary" href="/kayit">Qeydiyyat</a>
-              </>
+            {/* Səbət İkonu - Yalnız müştərilər üçün */}
+            {userToken && userType === 'customer' && (
+              <a href="/sepet" className="cart-icon-link">
+                <div className="cart-icon-container">
+                  <FaBasketShopping />
+                  {cartCount > 0 && (
+                    <span className="cart-badge">{cartCount}</span>
+                  )}
+                </div>
+              </a>
             )}
-            <a className="btn btn-outline" href="/panel">Mağazana Daxil ol</a>
-            <a className="btn btn-primary" href="/magaza-ac">Mağaza aç</a>
+
+            {/* Mağaza Dropdown - Daxil olmamış istifadəçilər və mağazalar üçün */}
+            {(!userToken || userType === 'store') && (
+              <div className="dropdown">
+                <button
+                  className="dropdown-toggle store-dropdown"
+                  onClick={() => {
+                    setShowStoreDropdown(!showStoreDropdown)
+                    setShowUserDropdown(false) // Digər dropdown'ı bağla
+                  }}
+                >
+                  <img src="/profil.png" alt="Mağaza" className="dropdown-avatar" />
+                  <span>{userToken ? 'Mağazam' : 'Mağaza'}</span>
+                  <span className="dropdown-arrow">▼</span>
+                </button>
+                {showStoreDropdown && (
+                  <div className="dropdown-menu show">
+                    {userToken ? (
+                      <>
+                        <a href="/panel" className="dropdown-item">
+                          <FaStore />
+                          Mağazam
+                        </a>
+                        <div className="dropdown-divider"></div>
+                        <button onClick={handleLogout} className="dropdown-item logout-item">
+                          <IoMdExit />
+                          Çıxış
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <a href="/panel" className="dropdown-item">
+                          <FaStore />
+                          Mağazana Daxil ol
+                        </a>
+                        <a href="/magaza-ac" className="dropdown-item">
+                          <FaStore />
+                          Mağaza aç
+                        </a>
+                        
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* İstifadəçi Dropdown - Yalnız daxil olmamış istifadəçilər və müştərilər üçün */}
+            {(!userToken || userType === 'customer') && (
+              <div className="dropdown">
+                <button
+                  className="dropdown-toggle user-dropdown"
+                  onClick={() => {
+                    setShowUserDropdown(!showUserDropdown)
+                    setShowStoreDropdown(false) // Digər dropdown'ı bağla
+                  }}
+                >
+                  <img src="/profil.png" alt="Profil" className="dropdown-avatar" />
+                  <span>{userToken ? 'Hesabım' : 'Giriş'}</span>
+                  <span className="dropdown-arrow">▼</span>
+                </button>
+                {showUserDropdown && (
+                  <div className="dropdown-menu show">
+                    {userToken ? (
+                      <>
+                        <a href="/favorites" className="dropdown-item">
+                          <MdFavorite />
+                          Favorilər
+                        </a>
+                        <div className="dropdown-divider"></div>
+                        <button onClick={handleLogout} className="dropdown-item logout-item">
+                          <IoMdExit />
+                          Çıxış
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <a href="/giris" className="dropdown-item">
+                          Daxil ol
+                        </a>
+                        <a href="/kayit" className="dropdown-item">
+                          Qeydiyyat
+                        </a>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Mobil Səbət Düyməsi */}
+          {userToken && userType === 'customer' && (
+            <a href="/sepet" className="mobile-cart-link">
+              <div className="mobile-cart-container">
+                <FaBasketShopping />
+                {cartCount > 0 && (
+                  <span className="mobile-cart-badge">{cartCount}</span>
+                )}
+              </div>
+            </a>
+          )}
 
           {/* Mobile Hamburger */}
           <button
@@ -99,15 +275,17 @@ const Navbar = () => {
             <span className="hamburger-line"></span>
           </button>
         </div>
-
         {/* Mobile Menu */}
-        <div 
+        <div
           className={`mobile-menu ${isOpen ? 'open' : ''}`}
           onClick={handleOverlayClick}
         >
           <div className="mobile-menu-content">
             <div className="mobile-menu-header">
-              <span className="mobile-logo">Heshop</span>
+              <div className="mobile-logo">
+                <span className="logo-text">Heshop</span>
+              </div>
+
               <button className="mobile-close" onClick={() => setIsOpen(false)}>
                 <svg width="24" height="24" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -115,24 +293,82 @@ const Navbar = () => {
               </button>
             </div>
 
-            <ul className="mobile-nav-list">
-              <li><a href="#" onClick={() => setIsOpen(false)}>Heshop nədir?</a></li>
-            </ul>
-
-            <div className="mobile-buttons">
-              {userToken ? (
-                <>
-                  <a className="btn btn-outline" href="/favorites" onClick={() => setIsOpen(false)}>Favorilər</a>
-                  <button className="btn btn-outline" onClick={() => { handleLogout(); setIsOpen(false); }}>Çıxış</button>
-                </>
-              ) : (
-                <>
-                  <a className="btn btn-outline" href="/giris" onClick={() => setIsOpen(false)}>Daxil ol</a>
-                  <a className="btn btn-primary" href="/kayit" onClick={() => setIsOpen(false)}>Qeydiyyat</a>
-                </>
+            <div className="mobile-sections">
+              {/* Mağaza Bölməsi - Daxil olmamış istifadəçilər və mağazalar üçün */}
+              {(!userToken || userType === 'store') && (
+                <div className="mobile-section">
+                  <h3 className="mobile-section-title">
+                    <FaStore className="section-icon" />
+                    {userToken ? 'Mağazam' : 'Mağaza'}
+                  </h3>
+                  <div className="mobile-section-items">
+                    {userToken ? (
+                      <>
+                        <a href="/panel" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <FaStore className="item-icon" />
+                          Mağazam
+                        </a>
+                        <button
+                          className="mobile-section-item logout-item"
+                          onClick={() => { handleLogout(); setIsOpen(false); }}
+                        >
+                          <IoMdExit className="item-icon" />
+                          Çıxış
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <a href="/panel" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <FaStore className="item-icon" />
+                          Mağazana Daxil ol
+                        </a>
+                        <a href="/magaza-ac" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <FaStore className="item-icon" />
+                          Mağaza aç
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
               )}
-              <a className="btn btn-outline" href="/panel" onClick={() => setIsOpen(false)}>Mağazana Daxil ol</a>
-              <a className="btn btn-primary" href="/magaza-ac" onClick={() => setIsOpen(false)}>Mağaza aç</a>
+
+              {/* İstifadəçi Bölməsi - Yalnız daxil olmamış istifadəçilər və müştərilər üçün */}
+              {(!userToken || userType === 'customer') && (
+                <div className="mobile-section">
+                  <h3 className="mobile-section-title">
+                    <FaUser className="section-icon" />
+                    Hesab
+                  </h3>
+                  <div className="mobile-section-items">
+                    {userToken ? (
+                      <>
+                        <a href="/favorites" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <MdFavorite className="item-icon" />
+                          Favorilər
+                        </a>
+                        <button
+                          className="mobile-section-item logout-item"
+                          onClick={() => { handleLogout(); setIsOpen(false); }}
+                        >
+                          <IoMdExit className="item-icon" />
+                          Çıxış
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <a href="/giris" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <FaUser className="item-icon" />
+                          Daxil ol
+                        </a>
+                        <a href="/kayit" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                          <FaUser className="item-icon" />
+                          Qeydiyyat
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -141,4 +377,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar 

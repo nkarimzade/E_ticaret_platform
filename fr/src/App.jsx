@@ -20,6 +20,7 @@ import ProductComments from './Pages/ProductComments'
 import UserRegister from './Pages/UserRegister'
 import UserLogin from './Pages/UserLogin'
 import Favorites from './Pages/Favorites'
+import Cart from './Pages/Cart'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 
 const AppContent = () => {
@@ -55,6 +56,7 @@ const AppContent = () => {
         <Route path='/kayit' element={<UserRegister />} />
         <Route path='/giris' element={<UserLogin />} />
         <Route path='/favorites' element={<Favorites />} />
+        <Route path='/sepet' element={<Cart />} />
       </Routes>
       <Footer />
     </>

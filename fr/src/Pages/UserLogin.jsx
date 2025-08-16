@@ -29,7 +29,7 @@ const UserLogin = () => {
       setNotification({ message: 'Uğurla daxil oldunuz!', type: 'success' })
       setTimeout(() => {
         window.location.href = '/' // Ana sayfaya yönlendir
-      }, 1500)
+      }, 1000)
     } catch (error) {
       console.error('API Error:', error)
       setError('Yanlış e-poçt və ya şifrə')

@@ -23,30 +23,30 @@ const UserRegister = () => {
     // Eğer +994 ile başlıyorsa, onu koru
     if (numbers.startsWith('994')) {
       const remaining = numbers.substring(3)
-      if (remaining.length <= 9) {
-        return `+994 ${remaining.slice(0, 3)} ${remaining.slice(3, 5)} ${remaining.slice(5, 7)}`.trim()
+      if (remaining.length <= 10) {
+        return `+994 ${remaining.slice(0, 2)} ${remaining.slice(2, 5)} ${remaining.slice(5, 7)} ${remaining.slice(7, 10)}`.trim()
       }
     }
     
     // Eğer 994 ile başlıyorsa, + ekle
     if (numbers.startsWith('994')) {
       const remaining = numbers.substring(3)
-      if (remaining.length <= 9) {
-        return `+994 ${remaining.slice(0, 3)} ${remaining.slice(3, 5)} ${remaining.slice(5, 7)}`.trim()
+      if (remaining.length <= 10) {
+        return `+994 ${remaining.slice(0, 2)} ${remaining.slice(2, 5)} ${remaining.slice(5, 7)} ${remaining.slice(7, 10)}`.trim()
       }
     }
     
     // Eğer 0 ile başlıyorsa, 994 ile değiştir
     if (numbers.startsWith('0')) {
       const remaining = numbers.substring(1)
-      if (remaining.length <= 9) {
-        return `+994 ${remaining.slice(0, 3)} ${remaining.slice(3, 5)} ${remaining.slice(5, 7)}`.trim()
+      if (remaining.length <= 10) {
+        return `+994 ${remaining.slice(0, 2)} ${remaining.slice(2, 5)} ${remaining.slice(5, 7)} ${remaining.slice(7, 10)}`.trim()
       }
     }
     
     // Diğer durumlar için
-    if (numbers.length <= 9) {
-      return `+994 ${numbers.slice(0, 3)} ${numbers.slice(3, 5)} ${numbers.slice(5, 7)}`.trim()
+    if (numbers.length <= 10) {
+      return `+994 ${numbers.slice(0, 2)} ${numbers.slice(2, 5)} ${numbers.slice(5, 7)} ${numbers.slice(7, 10)}`.trim()
     }
     
     return value
@@ -75,7 +75,7 @@ const UserRegister = () => {
       setNotification({ message: 'Qeydiyyat uğurla tamamlandı!', type: 'success' })
       setTimeout(() => {
         window.location.href = '/' // Ana sayfaya yönlendir
-      }, 1500)
+      }, 1000)
     } catch (error) {
       console.error('API Error:', error)
       if (error.message && error.message.includes('409')) {
@@ -160,8 +160,8 @@ const UserRegister = () => {
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                placeholder="+994 123 45 67"
-                maxLength="15"
+                placeholder="+994 00 123 45 67"
+                maxLength="17"
               />
               {errors.phone && <div className="error">{errors.phone}</div>}
             </div>

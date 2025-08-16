@@ -1,5 +1,5 @@
 const baseFromEnv = import.meta && import.meta.env && import.meta.env.VITE_API_URL
-const DEFAULT_BASE = 'https://hesen.onrender.com'
+const DEFAULT_BASE = 'http://localhost:3002'
 export const API_BASE_URL = baseFromEnv || DEFAULT_BASE
 
 const jsonHeaders = { 'Content-Type': 'application/json' }
@@ -34,10 +34,17 @@ export const api = {
   registerUser: (payload) => fetch(`${API_BASE_URL}/api/users/register`, { method: 'POST', headers: jsonHeaders, body: JSON.stringify(payload) }).then(handle),
   loginUser: (email, password) => fetch(`${API_BASE_URL}/api/users/login`, { method: 'POST', headers: jsonHeaders, body: JSON.stringify({ email, password }) }).then(handle),
   meUser: (token) => fetch(`${API_BASE_URL}/api/me/user`, { headers: { Authorization: `Bearer ${token}` } }).then(handle),
+  meStore: (token) => fetch(`${API_BASE_URL}/api/me/store`, { headers: { Authorization: `Bearer ${token}` } }).then(handle),
   // Favorites
   addToFavorites: (productId, storeId, token) => fetch(`${API_BASE_URL}/api/favorites`, { method: 'POST', headers: { ...jsonHeaders, Authorization: `Bearer ${token}` }, body: JSON.stringify({ productId, storeId }) }).then(handle),
   removeFromFavorites: (productId, storeId, token) => fetch(`${API_BASE_URL}/api/favorites/${productId}/${storeId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }).then(handle),
   getFavorites: (token) => fetch(`${API_BASE_URL}/api/favorites`, { headers: { Authorization: `Bearer ${token}` } }).then(handle),
+  // Cart
+  addToCart: (productId, storeId, quantity, token) => fetch(`${API_BASE_URL}/api/cart/${productId}/${storeId}`, { method: 'POST', headers: { ...jsonHeaders, Authorization: `Bearer ${token}` }, body: JSON.stringify({ quantity }) }).then(handle),
+  removeFromCart: (productId, storeId, token) => fetch(`${API_BASE_URL}/api/cart/${productId}/${storeId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }).then(handle),
+  updateCartQuantity: (productId, storeId, quantity, token) => fetch(`${API_BASE_URL}/api/cart/${productId}/${storeId}`, { method: 'PUT', headers: { ...jsonHeaders, Authorization: `Bearer ${token}` }, body: JSON.stringify({ quantity }) }).then(handle),
+  getCart: (token) => fetch(`${API_BASE_URL}/api/cart`, { headers: { Authorization: `Bearer ${token}` } }).then(handle),
+  clearCart: (token) => fetch(`${API_BASE_URL}/api/cart`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }).then(handle),
   // Comments
   createComment: (commentData) => fetch(`${API_BASE_URL}/api/comments`, { method: 'POST', headers: jsonHeaders, body: JSON.stringify(commentData) }).then(handle),
   getComments: (productId) => fetch(`${API_BASE_URL}/api/comments/${productId}`).then(handle),
