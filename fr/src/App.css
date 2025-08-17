@@ -86,13 +86,26 @@
   }
   
   .chip-group.chip-compact .chip {
-    padding: 8px 10px;
-    font-size: 12px;
-    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 11px;
+    min-height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+  
+  .color-chip {
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+  }
+  
+  .color-circle {
+    width: 20px;
+    height: 20px;
+  }
+  
+
   
   .options-toolbar {
     flex-direction: column;
@@ -142,16 +155,7 @@
     font-size: 11px;
   }
   
-  .radio-group {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .radio-option {
-    width: 100%;
-    justify-content: center;
-    padding: 10px 16px;
-  }
+
   
   .section-label {
     font-size: 0.85rem;
@@ -174,10 +178,23 @@
   }
   
   .chip-group.chip-compact .chip {
-    padding: 10px 12px;
-    font-size: 13px;
-    min-height: 36px;
+    padding: 8px 10px;
+    font-size: 12px;
+    min-height: 32px;
   }
+  
+  .color-chip {
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+  }
+  
+  .color-circle {
+    width: 22px;
+    height: 22px;
+  }
+  
+
   
   .form-row label {
     font-size: 0.9rem;
@@ -215,14 +232,7 @@
     font-size: 11px;
   }
   
-  .radio-group {
-    gap: 6px;
-  }
-  
-  .radio-option {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
+
   
   .section-label {
     font-size: 0.8rem;
@@ -1539,7 +1549,7 @@
 .chip-group{display:flex;flex-wrap:wrap;gap:8px}
 .page-narrow .form-row label.chip{width:auto;text-align:left;margin:0;display:inline-flex}
 .chip-group.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,auto));gap:8px}
-.chip-group.chip-compact .chip{padding:6px 10px;font-size:12px;min-height:28px;display:flex;align-items:center;justify-content:center}
+.chip-group.chip-compact .chip{padding:6px 8px;font-size:11px;min-height:26px;display:flex;align-items:center;justify-content:center}
 .chip{
   display:inline-flex;
   align-items:center;
@@ -1550,11 +1560,60 @@
   cursor:pointer;
   transition:all .15s ease-in-out;
   user-select:none;
+  min-height: 28px;
+  box-sizing: border-box;
 }
-.chip input{transform:scale(.9)}
-.chip input{margin-right:6px}
+.chip {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  justify-content: center;
+}
 .chip:hover{border-color:#c7cbd1}
-.chip.selected{border-color:#111827;background:rgba(17,24,39,.06)}
+.chip.selected{
+  border-color:#111827;
+  border-width:2px;
+  background:rgba(17,24,39,.06);
+  font-weight:600;
+}
+
+/* Color chip styling */
+.color-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.color-chip:hover {
+  border-color: #c7cbd1;
+  transform: scale(1.1);
+}
+
+.color-chip.selected {
+  border-color: #111827;
+  border-width: 2px;
+  background: rgba(17, 24, 39, 0.06);
+  transform: scale(1.15);
+}
+
+.color-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
 
 .helper-text{margin-top:6px;font-size:12px;color:#6b7280}
 
@@ -1578,38 +1637,7 @@
 }
 .form-footer .btn{min-width:180px}
 
-/* Radio group styling */
-.radio-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
 
-.radio-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  transition: all 0.2s ease;
-}
-
-.radio-option:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
-}
-
-.radio-option input[type="radio"] {
-  margin: 0;
-}
-
-.radio-option span {
-  font-weight: 500;
-  color: #374151;
-}
 
 /* Section label styling */
 .section-label {

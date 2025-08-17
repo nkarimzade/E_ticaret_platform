@@ -313,8 +313,89 @@ Təşəkkürlər! 🙏`
 
             {product.description && <p className="desc" style={{marginTop:8}}>{product.description}</p>}
 
-            {/* Məhsul xüsusiyyətləri */}
-            {product.attributes && (
+            {/* Kategori Detayları */}
+            {product.categoryDetails && (
+              <div style={{ marginTop: 12 }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, marginBottom: 10 }}>Məhsul detalları</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {Object.entries(product.categoryDetails).map(([key, value]) => {
+                    // Sadece değeri olan özellikleri göster
+                    if (!value || String(value).trim() === '') return null
+                    
+                    // Anahtar adlarını Azerbaycan diline çevir
+                    const keyTranslations = {
+                      // Giyim
+                      material: 'Material',
+                      fabric: 'Kumaş',
+                      style: 'Stil',
+                      season: 'Mövsüm',
+                      fit: 'Uyğunluq',
+                      pattern: 'Naxış',
+                      sleeve: 'Qol',
+                      neckline: 'Boyun',
+                      length: 'Uzunluq',
+                      care: 'Qulluq',
+                      
+                      // Parfum
+                      volume: 'Həcm (ml)',
+                      concentration: 'Konsentrasiya',
+                      brand: 'Marka',
+                      origin: 'Mənşə',
+                      family: 'Ailə',
+                      notes: 'Notlar',
+                      longevity: 'Davamlılıq',
+                      sillage: 'Yayılma',
+                      occasion: 'Məqsəd',
+                      gender: 'Cinsiyyət',
+                      
+                      // Ayakkabı
+                      soleType: 'Daban növü',
+                      heelHeight: 'Daban hündürlüyü',
+                      closure: 'Bağlama növü',
+                      comfort: 'Rahatlıq',
+                      
+                      // Aksesuar
+                      size: 'Ölçü',
+                      type: 'Növ',
+                      color: 'Rəng',
+                      quality: 'Keyfiyyət',
+                      
+                      // Makyaj
+                      shade: 'Çal',
+                      finish: 'Bitirmə',
+                      coverage: 'Örtmə',
+                      skinType: 'Dəri tipi',
+                      ingredients: 'Tərkibi',
+                      crueltyFree: 'Heyvan testi',
+                      expiryDate: 'Bitmə tarixi',
+                      
+                      // Elektronik
+                      model: 'Model',
+                      warranty: 'Zəmanət',
+                      power: 'Güc',
+                      connectivity: 'Qoşulma',
+                      features: 'Xüsusiyyətlər',
+                      compatibility: 'Uyğunluq',
+                      battery: 'Batareya',
+                      dimensions: 'Ölçülər',
+                      weight: 'Çəki'
+                    }
+                    
+                    const translatedKey = keyTranslations[key] || key
+                    
+                    return (
+                      <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, borderBottom: '1px dashed #e5e7eb', paddingBottom: 6 }}>
+                        <div style={{ color: '#374151', fontWeight: 500 }}>{translatedKey}</div>
+                        <div style={{ color: '#6b7280' }}>{String(value)}</div>
+                      </div>
+                    )
+                  }).filter(Boolean)}
+                </div>
+              </div>
+            )}
+
+            {/* Eski Məhsul xüsusiyyətləri (geriye uyumluluk için) */}
+            {product.attributes && !product.categoryDetails && (
               <div style={{ marginTop: 12 }}>
                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, marginBottom: 10 }}>Məhsul xüsusiyyətləri</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>

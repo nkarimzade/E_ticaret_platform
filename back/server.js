@@ -103,6 +103,7 @@ const ProductSchema = new mongoose.Schema(
     sizes: { type: [String], default: [] },
     campaigns: { type: [String], default: [] },
     attributes: { type: Object, default: {} },
+    categoryDetails: { type: Object, default: {} },
     addedAt: { type: Date, default: Date.now }, // Eklenme tarihi
   },
   { timestamps: true }
@@ -368,6 +369,16 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
         attributesObj = req.body.attributes
       }
     }
+    
+    // categoryDetails JSON string olarak gelir
+    let categoryDetailsObj = {}
+    if (req.body.categoryDetails) {
+      try { 
+        categoryDetailsObj = JSON.parse(req.body.categoryDetails) || {} 
+      } catch (_e) { 
+        categoryDetailsObj = {} 
+      }
+    }
     const imagePath = req.file ? `/uploads/${req.file.filename}` : ''
     const productDoc = {
       name,
@@ -395,6 +406,7 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
       sizes: sizesArr,
       campaigns: campaignsArr,
       attributes: attributesObj,
+      categoryDetails: categoryDetailsObj,
       addedAt: new Date(), // Gerçek eklenme tarihi
     }
     store.products.push(productDoc)
@@ -455,6 +467,15 @@ app.patch('/api/products/:storeId/:productId', requireAuth, async (req, res) => 
         try { product.attributes = JSON.parse(attributes) || {} } catch (_e) { /* ignore */ }
       } else if (typeof attributes === 'object') {
         product.attributes = attributes
+      }
+    }
+    
+    // categoryDetails güncelleme
+    if (req.body.categoryDetails !== undefined) {
+      try { 
+        product.categoryDetails = JSON.parse(req.body.categoryDetails) || {} 
+      } catch (_e) { 
+        product.categoryDetails = {} 
       }
     }
     await store.save()
