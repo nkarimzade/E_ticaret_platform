@@ -322,7 +322,7 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
       <div className="product-grid">
         {filtered.length === 0 && <div className="muted">Axtarılan məhsul və ya mağaza tapılmadı.</div>}
         {filtered.map((p) => {
-          const hasDiscount = p.discountPrice && Number(p.discountPrice) > 0
+            const hasDiscount = p.discountPrice && Number(p.discountPrice) > 0 && Number(p.discountPrice) < Number(p.price)
           const price = Number(p.price) || 0
           const dprice = Number(p.discountPrice) || 0
           const pct = hasDiscount && price > 0 ? Math.round((1 - dprice / price) * 100) : 0

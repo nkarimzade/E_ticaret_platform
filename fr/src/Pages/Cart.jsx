@@ -220,7 +220,7 @@ const Cart = () => {
                   <h5 className="cart-item-name">{item.product?.name}</h5>
                   <p className="cart-item-store">{item.product?.storeName}</p>
                   <div className="cart-item-price">
-                    {item.product?.discountPrice && item.product?.discountPrice > 0 ? (
+                    {item.product?.discountPrice && Number(item.product?.discountPrice) > 0 && Number(item.product?.discountPrice) < Number(item.product?.price) ? (
                       <>
                         <span style={{ color: '#64748b', textDecoration: 'line-through', marginRight: 8 }}>{item.product?.price} ₼</span>
                         <span>{item.product?.discountPrice} ₼</span>

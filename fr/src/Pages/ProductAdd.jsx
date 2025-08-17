@@ -56,7 +56,7 @@ const ProductAdd = () => {
       const formData = new FormData()
       formData.append('name', product.name)
       formData.append('price', String(product.price))
-      if (product.discountPrice) formData.append('discountPrice', String(product.discountPrice))
+      if (product.discountPrice && product.discountPrice.trim() !== '') formData.append('discountPrice', String(product.discountPrice))
       if (product.maxQty) formData.append('maxQty', String(product.maxQty))
       formData.append('stock', String(product.stock))
       formData.append('category', product.category)
@@ -102,8 +102,8 @@ const ProductAdd = () => {
       <form className="form" onSubmit={submit}>
         <div className="form-row">
           <label>Cinsiyyət</label>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+          <div className="radio-group">
+            <label className="radio-option">
               <input
                 type="radio"
                 name="category"
@@ -113,7 +113,7 @@ const ProductAdd = () => {
               />
               <span>Qadın</span>
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <label className="radio-option">
               <input
                 type="radio"
                 name="category"
@@ -131,7 +131,6 @@ const ProductAdd = () => {
           <select 
             value={product.productCategory} 
             onChange={(e) => setProduct({ ...product, productCategory: e.target.value })}
-            style={{ padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem' }}
           >
             <option value="giyim">Geyim</option>
             <option value="ayakkabi">Ayaqqabı</option>
@@ -154,6 +153,7 @@ const ProductAdd = () => {
           <div>
             <label>Endirimli qiymət</label>
             <input type="number" step="0.01" value={product.discountPrice} onChange={(e)=> setProduct({ ...product, discountPrice: e.target.value })} placeholder="(opsional)" />
+            <div className="helper-text">Endirimli qiymət qoymaq məcburi deyil</div>
           </div>
         </div>
         <div className="form-row two">
@@ -199,7 +199,7 @@ const ProductAdd = () => {
             <button type="button" className="mini-btn" onClick={()=> setSelectedColors(ALL_COLORS)}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedColors([])}>Təmizlə</button>
           </div>
-          <label style={{ display: 'block', marginBottom: 8 }}>Rəng (çoxlu seçim)</label>
+          <label className="section-label">Rəng (çoxlu seçim)</label>
           <div className="chip-group grid-3 chip-compact">
             {ALL_COLORS.map((c) => {
               const checked = selectedColors.includes(c)
@@ -227,7 +227,7 @@ const ProductAdd = () => {
             <button type="button" className="mini-btn" onClick={()=> setSelectedSizes(ALL_SIZES)}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedSizes([])}>Təmizlə</button>
           </div>
-          <label style={{ display: 'block', marginBottom: 8 }}>Ölçü (çoxlu seçim)</label>
+          <label className="section-label">Ölçü (çoxlu seçim)</label>
           <div className="chip-group grid-3 chip-compact">
             {ALL_SIZES.map((s) => {
               const checked = selectedSizes.includes(s)

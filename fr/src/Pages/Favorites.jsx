@@ -84,7 +84,7 @@ const Favorites = () => {
       ) : (
         <div className="product-grid">
           {favorites.map((product) => {
-            const hasDiscount = product.discountPrice && Number(product.discountPrice) > 0
+            const hasDiscount = product.discountPrice && Number(product.discountPrice) > 0 && Number(product.discountPrice) < Number(product.price)
             const price = Number(product.price) || 0
             const dprice = Number(product.discountPrice) || 0
             const pct = hasDiscount && price > 0 ? Math.round((1 - dprice / price) * 100) : 0

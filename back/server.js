@@ -90,7 +90,7 @@ const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    discountPrice: { type: Number, default: 0 },
+    discountPrice: { type: Number, default: undefined },
     maxQty: { type: Number, default: 5 },
     stock: { type: Number, required: true },
     image: { type: String, default: '' },
@@ -372,7 +372,13 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
     const productDoc = {
       name,
       price: Number(price),
-      discountPrice: discountPrice !== undefined ? Number(discountPrice) : 0,
+      discountPrice: (() => {
+        if (discountPrice === undefined || discountPrice === '' || discountPrice === null) {
+          return undefined // undefined olarak bırak, default 0 olacak
+        }
+        const num = Number(discountPrice)
+        return Number.isFinite(num) && num > 0 ? num : undefined
+      })(),
       maxQty: (() => {
         const n = Number(maxQty)
         if (Number.isFinite(n)) return Math.max(1, Math.min(5, n))

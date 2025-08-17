@@ -278,7 +278,7 @@ Təşəkkürlər! 🙏`
           <div className="product-info" style={{textAlign:'left'}}>
             <h2 className="product-title" style={{fontSize:'1.4rem'}}>{product.name}</h2>
             <div className="product-price" style={{fontSize:'1.2rem'}}>
-              {product.discountPrice && Number(product.discountPrice) > 0 ? (
+              {product.discountPrice && Number(product.discountPrice) > 0 && Number(product.discountPrice) < Number(product.price) ? (
                 <>
                   <span style={{ color: '#ef4444', textDecoration: 'line-through', marginRight: 8 }}>{product.price} AZN</span>
                   <span style={{ color: '#10B981', fontWeight: 700 }}>{product.discountPrice} AZN</span>
@@ -788,7 +788,7 @@ Təşəkkürlər! 🙏`
                   </h4>
                   
                   <div className="related-product-price">
-                    {relatedProduct.discountPrice && Number(relatedProduct.discountPrice) > 0 ? (
+                    {relatedProduct.discountPrice && Number(relatedProduct.discountPrice) > 0 && Number(relatedProduct.discountPrice) < Number(relatedProduct.price) ? (
                       <>
                         <span className="original-price">{relatedProduct.price} AZN</span>
                         <span className="discount-price">{relatedProduct.discountPrice} AZN</span>
