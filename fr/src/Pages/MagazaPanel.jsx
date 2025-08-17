@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api, resolveImageUrl } from '../utils/api'
+import { saveAuthToken } from '../utils/auth'
 import Notification from '../Components/Notification'
 import ConfirmModal from '../Components/ConfirmModal'
 
@@ -97,7 +98,10 @@ const MagazaPanel = () => {
         </div>
         {!token ? (
           <div className="card-body auth-card-body auth-card-body--login">
-            <StoreLogin onLogin={(t)=>{ localStorage.setItem('store_token', t); setToken(t) }} />
+            <StoreLogin onLogin={(t, storeData)=>{ 
+              saveAuthToken(t, 'store', storeData)
+              setToken(t) 
+            }} />
           </div>
         ) : (
           <div className="card-body auth-card-body">
@@ -164,7 +168,7 @@ const StoreLogin = ({ onLogin }) => {
     setError(''); setLoading(true)
     try{
       const resp = await api.login(email, password)
-      onLogin(resp.token)
+      onLogin(resp.token, resp.store)
     }catch(err){
       setError('Daxil olmaq alınmadı')
     }finally{

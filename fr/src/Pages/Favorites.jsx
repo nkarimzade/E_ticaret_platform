@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { api, resolveImageUrl } from '../utils/api'
+import { getAuthToken } from '../utils/auth'
 import { Link } from 'react-router-dom'
 import Notification from '../Components/Notification'
 
@@ -7,7 +8,7 @@ const Favorites = () => {
   const [favorites, setFavorites] = useState([])
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
-  const userToken = localStorage.getItem('user_token')
+  const userToken = getAuthToken()
 
   useEffect(() => {
     if (!userToken) {

@@ -1,6 +1,7 @@
 import { FaBasketShopping } from 'react-icons/fa6'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
+import { saveAuthToken, getAuthToken, getUserType, getUserData, clearAuthData, checkTokenExpiry } from '../utils/auth'
 import './Navbar.css'
 import { MdFavorite } from 'react-icons/md'
 import { IoMdExit } from 'react-icons/io'
@@ -10,8 +11,8 @@ import { FaUser } from 'react-icons/fa'
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState(null)
-  const [userToken, setUserToken] = useState(localStorage.getItem('user_token'))
-  const [userType, setUserType] = useState(null) // 'customer', 'store', or null
+  const [userToken, setUserToken] = useState(getAuthToken())
+  const [userType, setUserType] = useState(getUserType()) // 'customer', 'store', or null
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [showStoreDropdown, setShowStoreDropdown] = useState(false)
   const [cartCount, setCartCount] = useState(0)
@@ -19,11 +20,26 @@ const Navbar = () => {
   // İstifadəçi vəziyyətini yoxla
   useEffect(() => {
     const checkUser = async () => {
-      const token = localStorage.getItem('user_token')
+      // Token süresini kontrol et
+      if (!checkTokenExpiry()) {
+        setUserType(null)
+        setUser(null)
+        setCartCount(0)
+        setUserToken(null)
+        return
+      }
+
+      const token = getAuthToken()
       setUserToken(token)
 
       if (token) {
         try {
+          // Önce localStorage'dan kullanıcı verilerini al
+          const cachedUserData = getUserData()
+          if (cachedUserData) {
+            setUser(cachedUserData)
+          }
+
           // Əvvəlcə müştəri kimi yoxla
           const userData = await api.meUser(token)
           setUserType('customer')
@@ -44,7 +60,7 @@ const Navbar = () => {
             setUserType(null)
             setUser(null)
             setCartCount(0)
-            localStorage.removeItem('user_token')
+            clearAuthData()
             setUserToken(null)
           }
         }
@@ -76,11 +92,12 @@ const Navbar = () => {
   }, [userToken, userType])
 
   const handleLogout = () => {
-    localStorage.removeItem('user_token')
+    clearAuthData()
     setUserToken(null)
     setUser(null)
     setUserType(null)
     setShowUserDropdown(false)
+    setShowStoreDropdown(false)
     setCartCount(0)
     window.location.href = '/' // Ana sayfaya yönlendir
   }
@@ -128,7 +145,7 @@ const Navbar = () => {
       }
     }
 
-    document.addEventListener('keydown', handleEscKey)
+      document.addEventListener('keydown', handleEscKey)
     document.body.style.overflow = isOpen ? 'hidden' : 'unset' // Scroll'u blokla/aç
 
     return () => {
@@ -139,13 +156,13 @@ const Navbar = () => {
 
   return (
     <>
-
+     
       <nav className="navbar">
         <div className="navbar-container">
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '50px' }} className="navbar-logo">
-            <h1><a href="/">Heshop</a></h1>
-            <ul className="navbar-menu">
+             <h1><a href="/">Heshop</a></h1>
+             <ul className="navbar-menu">
             </ul>
           </div>
 
@@ -276,7 +293,7 @@ const Navbar = () => {
           </button>
         </div>
         {/* Mobile Menu */}
-        <div
+        <div 
           className={`mobile-menu ${isOpen ? 'open' : ''}`}
           onClick={handleOverlayClick}
         >
@@ -377,4 +394,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar 
+export default Navbar

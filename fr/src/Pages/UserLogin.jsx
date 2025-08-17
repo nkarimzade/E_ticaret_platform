@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
+import { saveAuthToken } from '../utils/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import Notification from '../Components/Notification'
 
@@ -25,7 +26,10 @@ const UserLogin = () => {
     
     try {
       const response = await api.loginUser(form.email, form.password)
-      localStorage.setItem('user_token', response.token)
+      
+      // Kalıcı oturum için token'ı kaydet
+      saveAuthToken(response.token, 'customer', response.user)
+      
       setNotification({ message: 'Uğurla daxil oldunuz!', type: 'success' })
       setTimeout(() => {
         window.location.href = '/' // Ana sayfaya yönlendir

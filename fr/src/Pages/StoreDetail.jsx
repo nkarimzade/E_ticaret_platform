@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api, resolveImageUrl } from '../utils/api'
+import { getAuthToken } from '../utils/auth'
 
 const StoreDetail = () => {
   const { id } = useParams()
@@ -15,7 +16,7 @@ const StoreDetail = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState([])
   const [cart, setCart] = useState([])
-  const userToken = localStorage.getItem('user_token')
+  const userToken = getAuthToken()
 
   useEffect(() => {
     (async () => {

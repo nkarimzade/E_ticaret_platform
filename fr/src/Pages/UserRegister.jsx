@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
+import { saveAuthToken } from '../utils/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import Notification from '../Components/Notification'
 
@@ -71,7 +72,10 @@ const UserRegister = () => {
     
     try {
       const response = await api.registerUser(form)
-      localStorage.setItem('user_token', response.token)
+      
+      // Kalıcı oturum için token'ı kaydet
+      saveAuthToken(response.token, 'customer', response.user)
+      
       setNotification({ message: 'Qeydiyyat uğurla tamamlandı!', type: 'success' })
       setTimeout(() => {
         window.location.href = '/' // Ana sayfaya yönlendir

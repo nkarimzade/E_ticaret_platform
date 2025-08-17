@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api, resolveImageUrl } from '../utils/api'
+import { getAuthToken } from '../utils/auth'
 import { Link } from 'react-router-dom'
 import './Magazalar.css'
 import Notification from '../Components/Notification'
@@ -15,7 +16,7 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
   const [notification, setNotification] = useState(null)
   const [favorites, setFavorites] = useState([])
   const [cart, setCart] = useState([])
-  const userToken = localStorage.getItem('user_token')
+  const userToken = getAuthToken()
   
   useEffect(() => { (async () => setApproved(await api.listApprovedStores()))() }, [])
   
