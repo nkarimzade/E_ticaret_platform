@@ -577,17 +577,676 @@ Təşəkkürlər! 🙏`
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>Rəng</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {availableColors.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className={`btn btn-outline ${selectedColor === c ? 'active' : ''}`}
-                  onClick={() => setSelectedColor((prev) => (prev === c ? '' : c))}
-                >
-                  {c}
-                </button>
-              ))}
+              {availableColors.map((c) => {
+                // Renk adından hex koduna çevirme fonksiyonu
+                const getColorHex = (colorName) => {
+                  const colorMap = {
+                    // Temel renkler
+                    'qırmızı': '#ff0000',
+                    'qirmizi': '#ff0000',
+                    'red': '#ff0000',
+                    'mavi': '#0000ff',
+                    'blue': '#0000ff',
+                    'yaşıl': '#00ff00',
+                    'yasil': '#00ff00',
+                    'green': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'yellow': '#ffff00',
+                    'qara': '#000000',
+                    'black': '#000000',
+                    'ağ': '#ffffff',
+                    'ag': '#ffffff',
+                    'white': '#ffffff',
+                    
+                    // Ek renkler
+                    'bənövşəyi': '#800080',
+                    'benovsəyi': '#800080',
+                    'purple': '#800080',
+                    'narıncı': '#ffa500',
+                    'narinci': '#ffa500',
+                    'orange': '#ffa500',
+                    'çəhrayı': '#ffc0cb',
+                    'çehrayi': '#ffc0cb',
+                    'pink': '#ffc0cb',
+                    'göy': '#87ceeb',
+                    'goy': '#87ceeb',
+                    'cyan': '#87ceeb',
+                    'boz': '#808080',
+                    'gray': '#808080',
+                    'gri': '#808080',
+                    'qəhvəyi': '#8b4513',
+                    'qehveyi': '#8b4513',
+                    'brown': '#8b4513',
+                    'qızılı': '#ffd700',
+                    'qizili': '#ffd700',
+                    'gold': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    'silver': '#c0c0c0',
+                    
+                    // Tünd tonlar
+                    'tünd mavi': '#000080',
+                    'tund mavi': '#000080',
+                    'navy': '#000080',
+                    'tünd yaşıl': '#006400',
+                    'tund yasil': '#006400',
+                    'dark green': '#006400',
+                    'tünd qırmızı': '#8b0000',
+                    'tund qirmizi': '#8b0000',
+                    'dark red': '#8b0000',
+                    'tünd bənövşəyi': '#4b0082',
+                    'tund benovsəyi': '#4b0082',
+                    'dark purple': '#4b0082',
+                    'tünd qəhvəyi': '#654321',
+                    'tund qehveyi': '#654321',
+                    'dark brown': '#654321',
+                    
+                    // Açıq tonlar
+                    'açıq mavi': '#add8e6',
+                    'aciq mavi': '#add8e6',
+                    'light blue': '#add8e6',
+                    'açıq yaşıl': '#90ee90',
+                    'aciq yasil': '#90ee90',
+                    'light green': '#90ee90',
+                    'açıq qırmızı': '#ffcccb',
+                    'aciq qirmizi': '#ffcccb',
+                    'light red': '#ffcccb',
+                    'açıq sarı': '#ffffe0',
+                    'aciq sari': '#ffffe0',
+                    'light yellow': '#ffffe0',
+                    'açıq çəhrayı': '#ffb6c1',
+                    'aciq çehrayi': '#ffb6c1',
+                    'light pink': '#ffb6c1',
+                    'açıq bənövşəyi': '#e6e6fa',
+                    'aciq benovsəyi': '#e6e6fa',
+                    'light purple': '#e6e6fa',
+                    
+                    // Özel renkler
+                    'türkü': '#00ced1',
+                    'turku': '#00ced1',
+                    'turquoise': '#00ced1',
+                    'lacivert': '#191970',
+                    'navy blue': '#191970',
+                    'krem': '#f5f5dc',
+                    'cream': '#f5f5dc',
+                    'bej': '#f5f5dc',
+                    'beige': '#f5f5dc',
+                    'qara mavi': '#000080',
+                    'qara mavi': '#000080',
+                    'qara yaşıl': '#006400',
+                    'qara yasil': '#006400',
+                    'qara qırmızı': '#8b0000',
+                    'qara qirmizi': '#8b0000',
+                    
+                    // Metalik renkler
+                    'qızıl': '#ffd700',
+                    'qizil': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    'bürünc': '#cd7f32',
+                    'burunc': '#cd7f32',
+                    'bronze': '#cd7f32',
+                    
+                    // Pastel renkler
+                    'pastel mavi': '#b0e0e6',
+                    'pastel yasil': '#98fb98',
+                    'pastel qirmizi': '#ffb6c1',
+                    'pastel sari': '#f0e68c',
+                    'pastel benovsəyi': '#dda0dd',
+                    
+                    // Neon renkler
+                    'neon qirmizi': '#ff1493',
+                    'neon mavi': '#00bfff',
+                    'neon yasil': '#00ff7f',
+                    'neon sari': '#ffff00',
+                    'neon çehrayi': '#ff69b4',
+                    
+                    // Doğal renkler
+                    'yaşıl mavi': '#008080',
+                    'yasil mavi': '#008080',
+                    'teal': '#008080',
+                    'zeytun': '#808000',
+                    'olive': '#808000',
+                    'maroon': '#800000',
+                    'bordo': '#800000',
+                    'indigo': '#4b0082',
+                    'çəhrayı qırmızı': '#dc143c',
+                    'çehrayi qirmizi': '#dc143c',
+                    'crimson': '#dc143c',
+                    'tomato': '#ff6347',
+                    'pomidor': '#ff6347',
+                    'coral': '#ff7f50',
+                    'mərcan': '#ff7f50',
+                    'mercan': '#ff7f50',
+                    'salmon': '#fa8072',
+                    'somon': '#fa8072',
+                    'lavender': '#e6e6fa',
+                    'lavanta': '#e6e6fa',
+                    'violet': '#ee82ee',
+                    'bənövşəyi': '#ee82ee',
+                    'benovsəyi': '#ee82ee',
+                    'plum': '#dda0dd',
+                    'gavalı': '#dda0dd',
+                    'gavali': '#dda0dd',
+                    'orchid': '#da70d6',
+                    'orkide': '#da70d6',
+                    'magenta': '#ff00ff',
+                    'magenta': '#ff00ff',
+                    'fuchsia': '#ff00ff',
+                    'hot pink': '#ff69b4',
+                    'istili çehrayi': '#ff69b4',
+                    'deep pink': '#ff1493',
+                    'dərin çehrayı': '#ff1493',
+                    'derin çehrayi': '#ff1493',
+                    'medium violet red': '#c71585',
+                    'orta bənövşəyi qırmızı': '#c71585',
+                    'orta benovsəyi qirmizi': '#c71585',
+                    'pale violet red': '#db7093',
+                    'solğun bənövşəyi qırmızı': '#db7093',
+                    'solgun benovsəyi qirmizi': '#db7093',
+                    
+                    // Ek renkler
+                    'qara': '#000000',
+                    'black': '#000000',
+                    'ağ': '#ffffff',
+                    'ag': '#ffffff',
+                    'white': '#ffffff',
+                    'qırmızı': '#ff0000',
+                    'qirmizi': '#ff0000',
+                    'red': '#ff0000',
+                    'mavi': '#0000ff',
+                    'blue': '#0000ff',
+                    'yaşıl': '#00ff00',
+                    'yasil': '#00ff00',
+                    'green': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'yellow': '#ffff00',
+                    'bənövşəyi': '#800080',
+                    'benovsəyi': '#800080',
+                    'purple': '#800080',
+                    'narıncı': '#ffa500',
+                    'narinci': '#ffa500',
+                    'orange': '#ffa500',
+                    'çəhrayı': '#ffc0cb',
+                    'çehrayi': '#ffc0cb',
+                    'pink': '#ffc0cb',
+                    'göy': '#87ceeb',
+                    'goy': '#87ceeb',
+                    'cyan': '#87ceeb',
+                    'boz': '#808080',
+                    'gray': '#808080',
+                    'gri': '#808080',
+                    'qəhvəyi': '#8b4513',
+                    'qehveyi': '#8b4513',
+                    'brown': '#8b4513',
+                    'qızılı': '#ffd700',
+                    'qizili': '#ffd700',
+                    'gold': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    'silver': '#c0c0c0',
+                    
+                    // Yeni eklenen renkler
+                    'türkü': '#00ced1',
+                    'turku': '#00ced1',
+                    'turquoise': '#00ced1',
+                    'lacivert': '#191970',
+                    'navy blue': '#191970',
+                    'krem': '#f5f5dc',
+                    'cream': '#f5f5dc',
+                    'bej': '#f5f5dc',
+                    'beige': '#f5f5dc',
+                    'bürünc': '#cd7f32',
+                    'burunc': '#cd7f32',
+                    'bronze': '#cd7f32',
+                    'zeytun': '#808000',
+                    'olive': '#808000',
+                    'maroon': '#800000',
+                    'bordo': '#800000',
+                    'indigo': '#4b0082',
+                    'crimson': '#dc143c',
+                    'tomato': '#ff6347',
+                    'pomidor': '#ff6347',
+                    'coral': '#ff7f50',
+                    'mərcan': '#ff7f50',
+                    'mercan': '#ff7f50',
+                    'salmon': '#fa8072',
+                    'somon': '#fa8072',
+                    'lavender': '#e6e6fa',
+                    'lavanta': '#e6e6fa',
+                    'violet': '#ee82ee',
+                    'plum': '#dda0dd',
+                    'gavalı': '#dda0dd',
+                    'gavali': '#dda0dd',
+                    'orchid': '#da70d6',
+                    'orkide': '#da70d6',
+                    'magenta': '#ff00ff',
+                    'fuchsia': '#ff00ff',
+                    'hot pink': '#ff69b4',
+                    'istili çehrayi': '#ff69b4',
+                    'deep pink': '#ff1493',
+                    'dərin çehrayı': '#ff1493',
+                    'derin çehrayi': '#ff1493',
+                    'medium violet red': '#c71585',
+                    'orta bənövşəyi qırmızı': '#c71585',
+                    'orta benovsəyi qirmizi': '#c71585',
+                    'pale violet red': '#db7093',
+                    'solğun bənövşəyi qırmızı': '#db7093',
+                    'solgun benovsəyi qirmizi': '#db7093',
+                    
+                    // Pastel renkler
+                    'pastel mavi': '#b0e0e6',
+                    'pastel yasil': '#98fb98',
+                    'pastel qirmizi': '#ffb6c1',
+                    'pastel sari': '#f0e68c',
+                    'pastel benovsəyi': '#dda0dd',
+                    
+                    // Neon renkler
+                    'neon qirmizi': '#ff1493',
+                    'neon mavi': '#00bfff',
+                    'neon yasil': '#00ff7f',
+                    'neon sari': '#ffff00',
+                    'neon çehrayi': '#ff69b4',
+                    
+                    // Doğal renkler
+                    'yaşıl mavi': '#008080',
+                    'yasil mavi': '#008080',
+                    'teal': '#008080',
+                    'çəhrayı qırmızı': '#dc143c',
+                    'çehrayi qirmizi': '#dc143c',
+                    
+                    // Ek tonlar
+                    'açıq boz': '#d3d3d3',
+                    'aciq boz': '#d3d3d3',
+                    'light gray': '#d3d3d3',
+                    'tünd boz': '#696969',
+                    'tund boz': '#696969',
+                    'dark gray': '#696969',
+                    'açıq qəhvəyi': '#d2b48c',
+                    'aciq qehveyi': '#d2b48c',
+                    'light brown': '#d2b48c',
+                    'tünd sarı': '#b8860b',
+                    'tund sari': '#b8860b',
+                    'dark yellow': '#b8860b',
+                    'açıq sarı': '#ffffe0',
+                    'aciq sari': '#ffffe0',
+                    'light yellow': '#ffffe0',
+                    'tünd mavi': '#000080',
+                    'tund mavi': '#000080',
+                    'navy': '#000080',
+                    'açıq mavi': '#add8e6',
+                    'aciq mavi': '#add8e6',
+                    'light blue': '#add8e6',
+                    'tünd yaşıl': '#006400',
+                    'tund yasil': '#006400',
+                    'dark green': '#006400',
+                    'açıq yaşıl': '#90ee90',
+                    'aciq yasil': '#90ee90',
+                    'light green': '#90ee90',
+                    'tünd qırmızı': '#8b0000',
+                    'tund qirmizi': '#8b0000',
+                    'dark red': '#8b0000',
+                    'açıq qırmızı': '#ffcccb',
+                    'aciq qirmizi': '#ffcccb',
+                    'light red': '#ffcccb',
+                    'tünd bənövşəyi': '#4b0082',
+                    'tund benovsəyi': '#4b0082',
+                    'dark purple': '#4b0082',
+                    'açıq bənövşəyi': '#e6e6fa',
+                    'aciq benovsəyi': '#e6e6fa',
+                    'light purple': '#e6e6fa',
+                    'açıq çəhrayı': '#ffb6c1',
+                    'aciq çehrayi': '#ffb6c1',
+                    'light pink': '#ffb6c1',
+                    'tünd qəhvəyi': '#654321',
+                    'tund qehveyi': '#654321',
+                    'dark brown': '#654321',
+                    
+                    // Ek renk varyasyonları
+                    'siyah': '#000000',
+                    'beyaz': '#ffffff',
+                    'kırmızı': '#ff0000',
+                    'kirmizi': '#ff0000',
+                    'mavi': '#0000ff',
+                    'yaşıl': '#00ff00',
+                    'yasil': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'bənövşəyi': '#800080',
+                    'benovsəyi': '#800080',
+                    'narıncı': '#ffa500',
+                    'narinci': '#ffa500',
+                    'çəhrayı': '#ffc0cb',
+                    'çehrayi': '#ffc0cb',
+                    'göy': '#87ceeb',
+                    'goy': '#87ceeb',
+                    'boz': '#808080',
+                    'qəhvəyi': '#8b4513',
+                    'qehveyi': '#8b4513',
+                    'qızılı': '#ffd700',
+                    'qizili': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    
+                    // Türkçe renk isimleri
+                    'siyah': '#000000',
+                    'beyaz': '#ffffff',
+                    'kırmızı': '#ff0000',
+                    'kirmizi': '#ff0000',
+                    'mavi': '#0000ff',
+                    'yeşil': '#00ff00',
+                    'yesil': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'mor': '#800080',
+                    'turuncu': '#ffa500',
+                    'pembe': '#ffc0cb',
+                    'gök mavisi': '#87ceeb',
+                    'gok mavisi': '#87ceeb',
+                    'gri': '#808080',
+                    'kahverengi': '#8b4513',
+                    'kahve': '#8b4513',
+                    'altın': '#ffd700',
+                    'altin': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    
+                    // Ek varyasyonlar
+                    'qara': '#000000',
+                    'ağ': '#ffffff',
+                    'ag': '#ffffff',
+                    'qırmızı': '#ff0000',
+                    'qirmizi': '#ff0000',
+                    'mavi': '#0000ff',
+                    'yaşıl': '#00ff00',
+                    'yasil': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'bənövşəyi': '#800080',
+                    'benovsəyi': '#800080',
+                    'narıncı': '#ffa500',
+                    'narinci': '#ffa500',
+                    'çəhrayı': '#ffc0cb',
+                    'çehrayi': '#ffc0cb',
+                    'göy': '#87ceeb',
+                    'goy': '#87ceeb',
+                    'boz': '#808080',
+                    'qəhvəyi': '#8b4513',
+                    'qehveyi': '#8b4513',
+                    'qızılı': '#ffd700',
+                    'qizili': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    
+                    // Basit renk isimleri
+                    'qara': '#000000',
+                    'ağ': '#ffffff',
+                    'ag': '#ffffff',
+                    'qırmızı': '#ff0000',
+                    'qirmizi': '#ff0000',
+                    'mavi': '#0000ff',
+                    'yaşıl': '#00ff00',
+                    'yasil': '#00ff00',
+                    'sarı': '#ffff00',
+                    'sari': '#ffff00',
+                    'bənövşəyi': '#800080',
+                    'benovsəyi': '#800080',
+                    'narıncı': '#ffa500',
+                    'narinci': '#ffa500',
+                    'çəhrayı': '#ffc0cb',
+                    'çehrayi': '#ffc0cb',
+                    'göy': '#87ceeb',
+                    'goy': '#87ceeb',
+                    'boz': '#808080',
+                    'qəhvəyi': '#8b4513',
+                    'qehveyi': '#8b4513',
+                    'qızılı': '#ffd700',
+                    'qizili': '#ffd700',
+                    'gümüş': '#c0c0c0',
+                    'gumus': '#c0c0c0',
+                    
+                    // Ek renkler
+                    'türkü': '#00ced1',
+                    'turku': '#00ced1',
+                    'lacivert': '#191970',
+                    'krem': '#f5f5dc',
+                    'bej': '#f5f5dc',
+                    'bürünc': '#cd7f32',
+                    'burunc': '#cd7f32',
+                    'zeytun': '#808000',
+                    'bordo': '#800000',
+                    'indigo': '#4b0082',
+                    'crimson': '#dc143c',
+                    'pomidor': '#ff6347',
+                    'mərcan': '#ff7f50',
+                    'mercan': '#ff7f50',
+                    'somon': '#fa8072',
+                    'lavanta': '#e6e6fa',
+                    'violet': '#ee82ee',
+                    'gavalı': '#dda0dd',
+                    'gavali': '#dda0dd',
+                    'orkide': '#da70d6',
+                    'magenta': '#ff00ff',
+                    'istili çehrayi': '#ff69b4',
+                    'dərin çehrayı': '#ff1493',
+                    'derin çehrayi': '#ff1493',
+                    'orta bənövşəyi qırmızı': '#c71585',
+                    'orta benovsəyi qirmizi': '#c71585',
+                    'solğun bənövşəyi qırmızı': '#db7093',
+                    'solgun benovsəyi qirmizi': '#db7093',
+                    
+                    // Pastel renkler
+                    'pastel mavi': '#b0e0e6',
+                    'pastel yasil': '#98fb98',
+                    'pastel qirmizi': '#ffb6c1',
+                    'pastel sari': '#f0e68c',
+                    'pastel benovsəyi': '#dda0dd',
+                    
+                    // Neon renkler
+                    'neon qirmizi': '#ff1493',
+                    'neon mavi': '#00bfff',
+                    'neon yasil': '#00ff7f',
+                    'neon sari': '#ffff00',
+                    'neon çehrayi': '#ff69b4',
+                    
+                    // Doğal renkler
+                    'yaşıl mavi': '#008080',
+                    'yasil mavi': '#008080',
+                    'çəhrayı qırmızı': '#dc143c',
+                    'çehrayi qirmizi': '#dc143c',
+                    
+                    // Ek tonlar
+                    'açıq boz': '#d3d3d3',
+                    'aciq boz': '#d3d3d3',
+                    'tünd boz': '#696969',
+                    'tund boz': '#696969',
+                    'açıq qəhvəyi': '#d2b48c',
+                    'aciq qehveyi': '#d2b48c',
+                    'tünd sarı': '#b8860b',
+                    'tund sari': '#b8860b',
+                    'açıq sarı': '#ffffe0',
+                    'aciq sari': '#ffffe0',
+                    'tünd mavi': '#000080',
+                    'tund mavi': '#000080',
+                    'açıq mavi': '#add8e6',
+                    'aciq mavi': '#add8e6',
+                    'tünd yaşıl': '#006400',
+                    'tund yasil': '#006400',
+                    'açıq yaşıl': '#90ee90',
+                    'aciq yasil': '#90ee90',
+                    'tünd qırmızı': '#8b0000',
+                    'tund qirmizi': '#8b0000',
+                    'açıq qırmızı': '#ffcccb',
+                    'aciq qirmizi': '#ffcccb',
+                    'tünd bənövşəyi': '#4b0082',
+                    'tund benovsəyi': '#4b0082',
+                    'açıq bənövşəyi': '#e6e6fa',
+                    'aciq benovsəyi': '#e6e6fa',
+                    'açıq çəhrayı': '#ffb6c1',
+                    'aciq çehrayi': '#ffb6c1',
+                    'tünd qəhvəyi': '#654321',
+                    'tund qehveyi': '#654321'
+                  }
+                  
+                  const normalizedColor = colorName.toLowerCase().trim()
+                  return colorMap[normalizedColor] || '#e5e7eb' // Varsayılan gri renk
+                }
+                
+                const colorHex = getColorHex(c)
+                const isSelected = selectedColor === c
+                
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setSelectedColor((prev) => (prev === c ? '' : c))}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      border: isSelected ? '3px solid #6366f1' : '2px solid #e5e7eb',
+                      background: colorHex,
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'all 0.2s ease',
+                      boxShadow: isSelected ? '0 2px 8px rgba(99, 102, 241, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)'
+                    }}
+                    title={c}
+                  >
+                    {isSelected && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '16px',
+                        height: '16px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        color: '#6366f1',
+                        fontWeight: 'bold'
+                      }}>
+                        ✓
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
             </div>
+            {selectedColor && (
+              <div style={{ 
+                marginTop: 8, 
+                fontSize: '0.9rem', 
+                color: '#6b7280',
+                fontWeight: 500
+              }}>
+                Seçilən rəng: <span style={{ color: '#374151' }}>{
+                  (() => {
+                    const colorTranslations = {
+                      // Türkçe'den Azerbaycan'a çeviriler
+                      'siyah': 'qara',
+                      'beyaz': 'ağ',
+                      'kırmızı': 'qırmızı',
+                      'kirmizi': 'qırmızı',
+                      'mavi': 'mavi',
+                      'yeşil': 'yaşıl',
+                      'yesil': 'yaşıl',
+                      'sarı': 'sarı',
+                      'sari': 'sarı',
+                      'mor': 'bənövşəyi',
+                      'turuncu': 'narıncı',
+                      'pembe': 'çəhrayı',
+                      'gök mavisi': 'göy',
+                      'gok mavisi': 'göy',
+                      'gri': 'boz',
+                      'kahverengi': 'qəhvəyi',
+                      'kahve': 'qəhvəyi',
+                      'altın': 'qızılı',
+                      'altin': 'qızılı',
+                      'gümüş': 'gümüş',
+                      'gumus': 'gümüş',
+                      
+                      // İngilizce'den Azerbaycan'a çeviriler
+                      'black': 'qara',
+                      'white': 'ağ',
+                      'red': 'qırmızı',
+                      'blue': 'mavi',
+                      'green': 'yaşıl',
+                      'yellow': 'sarı',
+                      'purple': 'bənövşəyi',
+                      'orange': 'narıncı',
+                      'pink': 'çəhrayı',
+                      'cyan': 'göy',
+                      'gray': 'boz',
+                      'grey': 'boz',
+                      'brown': 'qəhvəyi',
+                      'gold': 'qızılı',
+                      'silver': 'gümüş',
+                      'turquoise': 'türkü',
+                      'navy blue': 'lacivert',
+                      'cream': 'krem',
+                      'beige': 'bej',
+                      'bronze': 'bürünc',
+                      'olive': 'zeytun',
+                      'maroon': 'bordo',
+                      'crimson': 'crimson',
+                      'tomato': 'pomidor',
+                      'coral': 'mərcan',
+                      'salmon': 'somon',
+                      'lavender': 'lavanta',
+                      'violet': 'violet',
+                      'plum': 'gavalı',
+                      'orchid': 'orkide',
+                      'magenta': 'magenta',
+                      'fuchsia': 'magenta',
+                      'hot pink': 'istili çəhrayı',
+                      'deep pink': 'dərin çəhrayı',
+                      'medium violet red': 'orta bənövşəyi qırmızı',
+                      'pale violet red': 'solğun bənövşəyi qırmızı',
+                      
+                      // Ek çeviriler
+                      'light blue': 'açıq mavi',
+                      'light green': 'açıq yaşıl',
+                      'light red': 'açıq qırmızı',
+                      'light yellow': 'açıq sarı',
+                      'light pink': 'açıq çəhrayı',
+                      'light purple': 'açıq bənövşəyi',
+                      'light gray': 'açıq boz',
+                      'light brown': 'açıq qəhvəyi',
+                      'dark blue': 'tünd mavi',
+                      'dark green': 'tünd yaşıl',
+                      'dark red': 'tünd qırmızı',
+                      'dark purple': 'tünd bənövşəyi',
+                      'dark gray': 'tünd boz',
+                      'dark brown': 'tünd qəhvəyi',
+                      'dark yellow': 'tünd sarı',
+                      'navy': 'tünd mavi',
+                      'teal': 'yaşıl mavi',
+                      'indigo': 'indigo',
+                      'pastel blue': 'pastel mavi',
+                      'pastel green': 'pastel yaşıl',
+                      'pastel red': 'pastel qırmızı',
+                      'pastel yellow': 'pastel sarı',
+                      'pastel purple': 'pastel bənövşəyi',
+                      'neon red': 'neon qırmızı',
+                      'neon blue': 'neon mavi',
+                      'neon green': 'neon yaşıl',
+                      'neon yellow': 'neon sarı',
+                      'neon pink': 'neon çəhrayı'
+                    }
+                    
+                    const normalizedColor = selectedColor.toLowerCase().trim()
+                    return colorTranslations[normalizedColor] || selectedColor
+                  })()
+                }</span>
+              </div>
+            )}
           </div>
         )}
         
@@ -704,115 +1363,115 @@ Təşəkkürlər! 🙏`
  <br /><br /><br />
       {/* Ölçü Tablosu - Sadece geyim kategorisi için */}
       {product.productCategory === 'giyim' && (
-        <div className="size-chart-card">
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, marginBottom: 20 }}>Ölçü Cədvəli</h3>
-          
-          {/* Kadınlar için ölçü tablosu */}
-          <div style={{ marginBottom: 24 }}>
-            <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Qadınlar üçün</h4>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
-                fontSize: '0.85rem',
-                background: '#fff',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-              }}>
-                <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bust (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
+      <div className="size-chart-card">
+        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, marginBottom: 20 }}>Ölçü Cədvəli</h3>
+        
+        {/* Kadınlar için ölçü tablosu */}
+        <div style={{ marginBottom: 24 }}>
+          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Qadınlar üçün</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.85rem',
+              background: '#fff',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bust (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { size: 'XS', bust: '78-82', waist: '60-64', hip: '84-88', height: '155-160' },
+                  { size: 'S', bust: '82-86', waist: '64-68', hip: '88-92', height: '160-165' },
+                  { size: 'M', bust: '86-90', waist: '68-72', hip: '92-96', height: '165-170' },
+                  { size: 'L', bust: '90-94', waist: '72-76', hip: '96-100', height: '170-175' },
+                  { size: 'XL', bust: '94-98', waist: '76-80', hip: '100-104', height: '175-180' },
+                  { size: 'XXL', bust: '98-102', waist: '80-84', hip: '104-108', height: '180-185' }
+                ].map((row, index) => (
+                  <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.bust}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { size: 'XS', bust: '78-82', waist: '60-64', hip: '84-88', height: '155-160' },
-                    { size: 'S', bust: '82-86', waist: '64-68', hip: '88-92', height: '160-165' },
-                    { size: 'M', bust: '86-90', waist: '68-72', hip: '92-96', height: '165-170' },
-                    { size: 'L', bust: '90-94', waist: '72-76', hip: '96-100', height: '170-175' },
-                    { size: 'XL', bust: '94-98', waist: '76-80', hip: '100-104', height: '175-180' },
-                    { size: 'XXL', bust: '98-102', waist: '80-84', hip: '104-108', height: '180-185' }
-                  ].map((row, index) => (
-                    <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.bust}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Erkekler için ölçü tablosu */}
-          <div style={{ marginBottom: 16 }}>
-            <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Kişilər üçün</h4>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse', 
-                fontSize: '0.85rem',
-                background: '#fff',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-              }}>
-                <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Sinə (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
-                    <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { size: 'XS', chest: '88-92', waist: '70-74', hip: '90-94', height: '165-170' },
-                    { size: 'S', chest: '92-96', waist: '74-78', hip: '94-98', height: '170-175' },
-                    { size: 'M', chest: '96-100', waist: '78-82', hip: '98-102', height: '175-180' },
-                    { size: 'L', chest: '100-104', waist: '82-86', hip: '102-106', height: '180-185' },
-                    { size: 'XL', chest: '104-108', waist: '86-90', hip: '106-110', height: '185-190' },
-                    { size: 'XXL', chest: '108-112', waist: '90-94', hip: '110-114', height: '190-195' }
-                  ].map((row, index) => (
-                    <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.chest}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
-                      <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Ölçü alma rehberi */}
-          <div style={{ 
-            marginTop: 16, 
-            padding: '12px 16px', 
-            background: '#f0f9ff', 
-            border: '1px solid #bae6fd', 
-            borderRadius: '8px',
-            fontSize: '0.85rem'
-          }}>
-            <div style={{ fontWeight: 600, color: '#0369a1', marginBottom: 4 }}>📏 Ölçü alma təlimatı:</div>
-            <div style={{ color: '#0c4a6e', lineHeight: 1.4 }}>
-              • <strong>Sinə/Bust:</strong> Ən geniş hissəni ölçün<br/>
-              • <strong>Bel:</strong> Göbəyin ətrafını ölçün<br/>
-              • <strong>Kalça:</strong> Ən geniş hissəni ölçün<br/>
-              • <strong>Boy:</strong> Başdan ayağa qədər ölçün
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+
+        {/* Erkekler için ölçü tablosu */}
+        <div style={{ marginBottom: 16 }}>
+          <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, marginBottom: 12, color: '#6366f1' }}>Kişilər üçün</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse', 
+              fontSize: '0.85rem',
+              background: '#fff',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Ölçü</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Sinə (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Bel (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Kalça (cm)</th>
+                  <th style={{ padding: '10px 8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#374151' }}>Boy (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { size: 'XS', chest: '88-92', waist: '70-74', hip: '90-94', height: '165-170' },
+                  { size: 'S', chest: '92-96', waist: '74-78', hip: '94-98', height: '170-175' },
+                  { size: 'M', chest: '96-100', waist: '78-82', hip: '98-102', height: '175-180' },
+                  { size: 'L', chest: '100-104', waist: '82-86', hip: '102-106', height: '180-185' },
+                  { size: 'XL', chest: '104-108', waist: '86-90', hip: '106-110', height: '185-190' },
+                  { size: 'XXL', chest: '108-112', waist: '90-94', hip: '110-114', height: '190-195' }
+                ].map((row, index) => (
+                  <tr key={row.size} style={{ background: index % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', fontWeight: 600, color: '#6366f1', textAlign: 'center' }}>{row.size}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.chest}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.waist}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.hip}</td>
+                    <td style={{ padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.height}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Ölçü alma rehberi */}
+        <div style={{ 
+          marginTop: 16, 
+          padding: '12px 16px', 
+          background: '#f0f9ff', 
+          border: '1px solid #bae6fd', 
+          borderRadius: '8px',
+          fontSize: '0.85rem'
+        }}>
+          <div style={{ fontWeight: 600, color: '#0369a1', marginBottom: 4 }}>📏 Ölçü alma təlimatı:</div>
+          <div style={{ color: '#0c4a6e', lineHeight: 1.4 }}>
+            • <strong>Sinə/Bust:</strong> Ən geniş hissəni ölçün<br/>
+            • <strong>Bel:</strong> Göbəyin ətrafını ölçün<br/>
+            • <strong>Kalça:</strong> Ən geniş hissəni ölçün<br/>
+            • <strong>Boy:</strong> Başdan ayağa qədər ölçün
+          </div>
+        </div>
+      </div>
       )}
 
       {/* Dikkatinizi çekebilecek ürünler */}

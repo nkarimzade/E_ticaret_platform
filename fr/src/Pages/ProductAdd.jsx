@@ -235,8 +235,8 @@ const ProductAdd = () => {
         }
 
               }
-        if (product.file) formData.append('image', product.file)
-        await api.addProduct(me._id || me.id, formData, token)
+      if (product.file) formData.append('image', product.file)
+      await api.addProduct(me._id || me.id, formData, token)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', file: null })
       setSelectedColors([])
       setSelectedSizes([])
@@ -438,13 +438,13 @@ const ProductAdd = () => {
         
         {/* Giyim Detayları */}
         {product.productCategory === 'giyim' && (
-          <div className="form-row form-section">
+        <div className="form-row form-section">
             <h3>Geyim Detalları</h3>
             <p className="section-desc">Geyim məhsulu üçün əlavə məlumatlar doldurun.</p>
             
-            <div className="form-row two">
-              <div>
-                <label>Material</label>
+          <div className="form-row two">
+            <div>
+              <label>Material</label>
                 <input 
                   type="text" 
                   value={giyimDetails.material} 
@@ -535,8 +535,8 @@ const ProductAdd = () => {
                   onChange={(e) => setGiyimDetails({...giyimDetails, length: e.target.value})}
                   placeholder="Məsələn: Qısa, Orta, Uzun"
                 />
-              </div>
-              <div>
+            </div>
+            <div>
                 <label>Qulluq</label>
                 <input 
                   type="text" 
@@ -618,8 +618,8 @@ const ProductAdd = () => {
               </div>
             </div>
             
-            <div className="form-row two">
-              <div>
+          <div className="form-row two">
+            <div>
                 <label>Davamlılıq</label>
                 <input 
                   type="text" 
@@ -648,8 +648,8 @@ const ProductAdd = () => {
                   onChange={(e) => setParfumDetails({...parfumDetails, occasion: e.target.value})}
                   placeholder="Məsələn: Gündəlik, Axşam, Xüsusi"
                 />
-              </div>
-              <div>
+            </div>
+            <div>
                 <label>Cinsiyyət</label>
                 <input 
                   type="text" 
@@ -731,8 +731,8 @@ const ProductAdd = () => {
               </div>
             </div>
             
-            <div className="form-row two">
-              <div>
+          <div className="form-row two">
+            <div>
                 <label>Marka</label>
                 <input 
                   type="text" 
@@ -761,8 +761,8 @@ const ProductAdd = () => {
                   onChange={(e) => setAyakkabiDetails({...ayakkabiDetails, care: e.target.value})}
                   placeholder="Məsələn: Əl təmizləmə, Maşın yuma"
                 />
-              </div>
-              <div>
+            </div>
+            <div>
                 <label>Rahatlıq</label>
                 <input 
                   type="text" 
@@ -781,8 +781,8 @@ const ProductAdd = () => {
             <h3>Aksesuar Detalları</h3>
             <p className="section-desc">Aksesuar məhsulu üçün əlavə məlumatlar doldurun.</p>
             
-            <div className="form-row two">
-              <div>
+          <div className="form-row two">
+            <div>
                 <label>Material</label>
                 <input 
                   type="text" 
@@ -811,8 +811,8 @@ const ProductAdd = () => {
                   onChange={(e) => setAksesuarDetails({...aksesuarDetails, brand: e.target.value})}
                   placeholder="Məsələn: Gucci, Prada, Zara"
                 />
-              </div>
-              <div>
+            </div>
+            <div>
                 <label>Növ</label>
                 <input 
                   type="text" 
@@ -831,8 +831,8 @@ const ProductAdd = () => {
             <h3>Makiyaj Detalları</h3>
             <p className="section-desc">Makiyaj məhsulu üçün əlavə məlumatlar doldurun.</p>
             
-            <div className="form-row two">
-              <div>
+          <div className="form-row two">
+            <div>
                 <label>Marka</label>
                 <input 
                   type="text" 
@@ -861,8 +861,8 @@ const ProductAdd = () => {
                   onChange={(e) => setMakyajDetails({...makyajDetails, volume: e.target.value})}
                   placeholder="Məsələn: 3.5g, 10ml"
                 />
-              </div>
-              <div>
+            </div>
+            <div>
                 <label>Bitmə tarixi</label>
                 <input 
                   type="text" 
@@ -920,9 +920,9 @@ const ProductAdd = () => {
                   onChange={(e) => setElektronikDetails({...elektronikDetails, power: e.target.value})}
                   placeholder="Məsələn: 100W, 220V"
                 />
-              </div>
             </div>
           </div>
+        </div>
         )}
 
         <div className="form-row">
