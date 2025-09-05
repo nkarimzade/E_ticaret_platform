@@ -7,6 +7,7 @@ import { MdFavorite } from 'react-icons/md'
 import { IoMdExit } from 'react-icons/io'
 import { FaStore } from 'react-icons/fa'
 import { FaUser } from 'react-icons/fa'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,6 +17,9 @@ const Navbar = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [showStoreDropdown, setShowStoreDropdown] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchQuery, setSearchQuery] = useState(new URLSearchParams(location.search).get('q') || '')
 
   // İstifadəçi vəziyyətini yoxla
   useEffect(() => {
@@ -91,6 +95,23 @@ const Navbar = () => {
     return () => window.removeEventListener('cartUpdated', updateCartCount)
   }, [userToken, userType])
 
+  // URL değişince arama inputunu senkronize et
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    setSearchQuery(params.get('q') || '')
+  }, [location.search])
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault()
+    const params = new URLSearchParams(location.search)
+    if (searchQuery) {
+      params.set('q', searchQuery)
+    } else {
+      params.delete('q')
+    }
+    navigate({ pathname: '/', search: params.toString() ? `?${params.toString()}` : '' })
+  }
+
   const handleLogout = () => {
     clearAuthData()
     setUserToken(null)
@@ -161,10 +182,15 @@ const Navbar = () => {
         <div className="navbar-container">
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '50px' }} className="navbar-logo">
-             <h1><a href="/">Heshop</a></h1>
-             <ul className="navbar-menu">
-            </ul>
+             <h1><a href="/"><img className="navbar-logo-img" src="/bavılogo.png" alt="logo" /></a></h1>
           </div>
+
+          {/* Search Center */}
+          <form onSubmit={handleSearchSubmit} className="navbar-search">
+            <div className="search-input-wrapper">
+              <input placeholder="Məhsul və ya mağaza axtar" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} />
+            </div>
+          </form>
 
           {/* Desktop Buttons */}
           <div className="navbar-buttons">
@@ -300,7 +326,7 @@ const Navbar = () => {
           <div className="mobile-menu-content">
             <div className="mobile-menu-header">
               <div className="mobile-logo">
-                <span className="logo-text">Heshop</span>
+                <a href="/" className="logo-link"><img src="/bavılogo.png" alt="logo" style={{ width: '80px', height: '80px' }} /></a>
               </div>
 
               <button className="mobile-close" onClick={() => setIsOpen(false)}>

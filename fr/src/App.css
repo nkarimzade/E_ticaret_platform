@@ -2281,19 +2281,6 @@
     padding: 20px;
   }
 }
-  border: none;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 10;
-}
 
 .remove-from-cart-btn:hover {
   background: #ef4444;

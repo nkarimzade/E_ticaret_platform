@@ -50,7 +50,7 @@ const Admin = () => {
       <div className="admin-dashboard">
         <div className="admin-header">
           <h1>Admin Panel</h1>
-          <p>Heshop sistemini idarə edin</p>
+          <p><img src="/bavılogo.png" alt="logo" style={{ height: '24px', verticalAlign: 'middle' }} /> sistemini idarə edin</p>
         </div>
 
         <div className="stats-grid">

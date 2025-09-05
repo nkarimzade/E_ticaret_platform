@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { api, resolveImageUrl } from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { Link } from 'react-router-dom'
@@ -7,7 +8,8 @@ import Notification from '../Components/Notification'
 
 const Magazalar = ({ selectedCategory = 'tumu' }) => {
   const [approved, setApproved] = useState([])
-  const [q, setQ] = useState('')
+  const location = useLocation()
+  const [q, setQ] = useState(new URLSearchParams(location.search).get('q') || '')
   const [sortBy, setSortBy] = useState('')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
@@ -63,6 +65,12 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
       productCategory: p.productCategory,
     })))
   }, [approved])
+
+  // URL q değişince senkronize et
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    setQ(params.get('q') || '')
+  }, [location.search])
   
   const filtered = useMemo(() => {
     let filteredProducts = products.filter(p => {
@@ -171,12 +179,6 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
       <div className="store-list-header">
         <h2>Məhsullar</h2>
         <div className="filters-container">
-          {/* Arama */}
-          <div className="search-input-wrapper">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#6b7280" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 110-8 4 4 0 010 8z"></path></svg>
-            <input placeholder="Məhsul və ya mağaza axtar" value={q} onChange={(e)=>setQ(e.target.value)} />
-          </div>
-
           {/* Filtreleme Butonu */}
           <button 
             className={`filter-button ${hasActiveFilters ? 'active' : ''}`}
@@ -185,7 +187,6 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Filtrlər
             {hasActiveFilters && <span className="filter-badge">{[sortBy, minPrice, maxPrice, genderFilter].filter(Boolean).length}</span>}
           </button>
         </div>

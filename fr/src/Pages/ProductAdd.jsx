@@ -27,6 +27,22 @@ const ProductAdd = () => {
   ]
   const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
   const ALL_SHOE_SIZES = Array.from({length: 15}, (_, i) => (i + 30).toString()) // 30-44
+  const ALL_PARFUM_VOLUMES = [
+    '30ml', '50ml', '75ml',
+    '100ml', '125ml', '150ml', '175ml', '200ml', '225ml', '250ml'
+  ]
+  const ALL_MAKEUP_VOLUMES = ['3ml','5ml','7ml','10ml','15ml','20ml','30ml']
+  const ALL_ACCESSORY_SIZES = ['Kiçik','Orta','Böyük','Tənzimlənə bilən']
+  const ALL_ELECTRONIC_CAPACITY = ['16GB','32GB','64GB','128GB','256GB','512GB','1TB']
+
+  const getSizeOptions = (category) => {
+    if (category === 'ayakkabi') return ALL_SHOE_SIZES
+    if (category === 'parfum') return ALL_PARFUM_VOLUMES
+    if (category === 'makyaj') return ALL_MAKEUP_VOLUMES
+    if (category === 'aksesuar') return ALL_ACCESSORY_SIZES
+    if (category === 'elektronik') return ALL_ELECTRONIC_CAPACITY
+    return ALL_SIZES
+  }
   const ALL_CAMPAIGNS = [
     'Kargo pulsuz',
     '2-ci məhsula 10%',
@@ -402,12 +418,12 @@ const ProductAdd = () => {
           <h3>Ölçülər</h3>
           <p className="section-desc">Mövcud ölçüləri seçin. Müştərilər yalnız bu ölçülərdən seçim edəcək.</p>
           <div className="options-toolbar">
-            <button type="button" className="mini-btn" onClick={()=> setSelectedSizes(product.productCategory === 'ayakkabi' ? ALL_SHOE_SIZES : ALL_SIZES)}>Hamısını seç</button>
+            <button type="button" className="mini-btn" onClick={()=> setSelectedSizes(getSizeOptions(product.productCategory))}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedSizes([])}>Təmizlə</button>
           </div>
           <label className="section-label">Ölçü (çoxlu seçim)</label>
           <div className="chip-group grid-3 chip-compact">
-            {(product.productCategory === 'ayakkabi' ? ALL_SHOE_SIZES : ALL_SIZES).map((s) => {
+            {getSizeOptions(product.productCategory).map((s) => {
               const checked = selectedSizes.includes(s)
               return (
                 <div 

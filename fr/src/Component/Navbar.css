@@ -29,6 +29,12 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.navbar-logo-img {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+}
+
 .navbar-logo a {
   text-decoration: none;
   color: inherit;
@@ -48,6 +54,39 @@
   display: flex;
   gap: 16px;
   align-items: center;
+}
+
+/* Center Search */
+.navbar-search {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+.navbar-search .search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 10px;
+  max-width: 520px;
+  width: 100%;
+}
+
+.navbar-search .search-input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  padding-left: 20px;
+}
+
+.navbar-search .search-input-wrapper svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Cart Icon */
@@ -554,10 +593,26 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .navbar-container {
+    height: 60px;
+    padding: 0 12px;
+  }
+
+  .navbar-logo-img {
+    width: 56px;
+    height: 56px;
+    margin-top: 4px;
+  }
+
   .navbar-menu,
   .navbar-buttons {
     display: none;
   }
+
+  .navbar-search { padding: 0 8px; }
+  .navbar-search .search-input-wrapper { max-width: 200px; padding: 4px 8px; border-radius: 10px; }
+  .navbar-search .search-input-wrapper input { font-size: 0.85rem; }
+  .navbar-search .search-input-wrapper svg { width: 14px; height: 14px; }
 
   .hamburger {
     display: flex;

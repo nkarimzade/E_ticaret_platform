@@ -9,22 +9,9 @@ export default function Footer() {
         <div className="footer-content">
           {/* Brand */}
           <div className="footer-brand">
-            <div className="footer-logo">HeShop</div>
-            <p className="footer-desc">Yerel mağazalardan ən yeni məhsullar. Sürətli çatdırılma, güvənli alış-veriş.</p>
-            <div className="footer-stats">
-              <div className="stat">
-                <div className="stat-number">100+</div>
-                <div className="stat-label">Mağaza</div>
-              </div>
-              <div className="stat">
-                <div className="stat-number">5k+</div>
-                <div className="stat-label">Məhsul</div>
-              </div>
-              <div className="stat">
-                <div className="stat-number">4.9</div>
-                <div className="stat-label">Müştəri məm.</div>
-              </div>
-            </div>
+            <div className="footer-logo"><a href="/"><img src="/bavılogo.png" alt="logo" style={{ width: '100px', height: '100px' }} /></a></div>
+            <p className="footer-desc">Yerel mağazalardan ən yeni məhsullar.</p>
+           
           </div>
 
           {/* Links */}
@@ -50,7 +37,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="footer-bottom">
-          <p>© {year} HeShop · Tüm hakları saklıdır.</p>
+          <p>© {year} Bavio · Tüm hakları saklıdır.</p>
           {/* Founder satırını ELLEME — olduğu kimi korunur */}
           <p className="founder">Founder: <strong><a style={{color:'#6366f1'}} href="https://krisoft.shop">Krisoft</a></strong></p>
         </div>
