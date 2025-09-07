@@ -12,7 +12,12 @@ import { fileURLToPath } from 'url'
 dotenv.config()
 
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://hesen.onrender.com', 'https://hesen-frontend.onrender.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
 app.use(express.json())
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { api } from '../utils/api'
+import { api, API_BASE_URL } from '../utils/api'
 import Notification from '../Components/Notification'
 
 const ProductAdd = () => {
@@ -127,6 +127,24 @@ const ProductAdd = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notification, setNotification] = useState(null)
+  const [apiStatus, setApiStatus] = useState('checking')
+
+  useEffect(() => {
+    (async () => {
+      try {
+        // API bağlantısını test et
+        const response = await fetch(`${API_BASE_URL}/health`)
+        if (response.ok) {
+          setApiStatus('connected')
+        } else {
+          setApiStatus('error')
+        }
+      } catch (e) {
+        setApiStatus('error')
+        console.error('API bağlantı hatası:', e)
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     (async () => {
@@ -145,6 +163,10 @@ const ProductAdd = () => {
     if (!token || !me) { 
       setError('Daxil olmaq lazımdır'); 
       return 
+    }
+    if (apiStatus === 'error') {
+      setError('Backend sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.');
+      return
     }
     setSaving(true); setError('')
     try {
@@ -285,6 +307,28 @@ const ProductAdd = () => {
       <h2>Məhsul əlavə et</h2>
       {!token && <div className="muted">Zəhmət olmasa əvvəlcə daxil olun.</div>}
       {error && <div className="muted">{error}</div>}
+      
+      {/* API Durumu */}
+      <div style={{ 
+        fontSize: '12px', 
+        color: apiStatus === 'connected' ? '#28a745' : apiStatus === 'error' ? '#dc3545' : '#ffc107',
+        margin: '10px 0', 
+        padding: '8px', 
+        background: apiStatus === 'connected' ? '#d4edda' : apiStatus === 'error' ? '#f8d7da' : '#fff3cd',
+        borderRadius: '4px',
+        border: `1px solid ${apiStatus === 'connected' ? '#c3e6cb' : apiStatus === 'error' ? '#f5c6cb' : '#ffeaa7'}`
+      }}>
+        <strong>API Durumu:</strong> {
+          apiStatus === 'checking' ? 'Kontrol ediliyor...' :
+          apiStatus === 'connected' ? '✅ Bağlantı başarılı' :
+          apiStatus === 'error' ? '❌ Bağlantı hatası' : 'Bilinmeyen'
+        }
+        {apiStatus === 'error' && (
+          <div style={{ marginTop: '5px' }}>
+            <small>Backend sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.</small>
+          </div>
+        )}
+      </div>
       <div className="product-add-card">
       <form className="form" onSubmit={submit}>
         <div className="form-row">
