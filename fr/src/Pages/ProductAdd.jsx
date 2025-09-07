@@ -160,10 +160,6 @@ const ProductAdd = () => {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!token || !me) { 
-      setError('Daxil olmaq lazımdır'); 
-      return 
-    }
     if (apiStatus === 'error') {
       setError('Backend sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.');
       return
@@ -277,7 +273,10 @@ const ProductAdd = () => {
 
               }
       if (product.file) formData.append('image', product.file)
-      await api.addProduct(me._id || me.id, formData, token)
+      // Token ve me kontrolü kaldırıldı - buton her zaman aktif
+      const storeId = me?._id || me?.id || 'default-store-id'
+      const authToken = token || 'default-token'
+      await api.addProduct(storeId, formData, authToken)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
       setSelectedSizes([])
@@ -1007,7 +1006,7 @@ const ProductAdd = () => {
             <button 
               className="btn btn-primary" 
               type="submit" 
-              disabled={saving || !token || !me}
+              disabled={saving}
             >
               {saving ? 'Yüklənir...' : 'Əlavə et'}
             </button>
