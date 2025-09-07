@@ -19,6 +19,7 @@ import ProductEdit from './Pages/ProductEdit'
 import ProductComments from './Pages/ProductComments'
 import UserRegister from './Pages/UserRegister'
 import UserLogin from './Pages/UserLogin'
+import StoreLogin from './Pages/StoreLogin'
 import Favorites from './Pages/Favorites'
 import Cart from './Pages/Cart'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
@@ -55,6 +56,7 @@ const AppContent = () => {
         <Route path='/debug' element={<Debug />} />
         <Route path='/kayit' element={<UserRegister />} />
         <Route path='/giris' element={<UserLogin />} />
+        <Route path='/magaza-giris' element={<StoreLogin />} />
         <Route path='/favorites' element={<Favorites />} />
         <Route path='/sepet' element={<Cart />} />
       </Routes>

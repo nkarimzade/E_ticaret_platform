@@ -12,8 +12,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState(null)
-  const [userToken, setUserToken] = useState(getAuthToken())
-  const [userType, setUserType] = useState(getUserType()) // 'customer', 'store', or null
+  const [userToken, setUserToken] = useState(getAuthToken() || localStorage.getItem('store_token'))
+  const [userType, setUserType] = useState(getUserType() || (localStorage.getItem('store_token') ? 'store' : null))
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [showStoreDropdown, setShowStoreDropdown] = useState(false)
   const [cartCount, setCartCount] = useState(0)
@@ -33,7 +33,7 @@ const Navbar = () => {
         return
       }
 
-      const token = getAuthToken()
+      const token = getAuthToken() || localStorage.getItem('store_token')
       setUserToken(token)
 
       if (token) {
@@ -114,6 +114,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     clearAuthData()
+    localStorage.removeItem('store_token') // Mağaza token'ını da temizle
     setUserToken(null)
     setUser(null)
     setUserType(null)
@@ -206,8 +207,8 @@ const Navbar = () => {
               </a>
             )}
 
-            {/* Mağaza Dropdown - Daxil olmamış istifadəçilər və mağazalar üçün */}
-            {(!userToken || userType === 'store') && (
+            {/* Mağaza Dropdown - Mağazalar ve giriş yapmamış kullanıcılar için */}
+            {(userType === 'store' || !userToken) && (
               <div className="dropdown">
                 <button
                   className="dropdown-toggle store-dropdown"
@@ -236,7 +237,7 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <a href="/panel" className="dropdown-item">
+                        <a href="/magaza-giris" className="dropdown-item">
                           <FaStore />
                           Mağazana Daxil ol
                         </a>
@@ -252,8 +253,8 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* İstifadəçi Dropdown - Yalnız daxil olmamış istifadəçilər və müştərilər üçün */}
-            {(!userToken || userType === 'customer') && (
+            {/* İstifadəçi Dropdown - Yalnız müştərilər üçün */}
+            {userType === 'customer' && (
               <div className="dropdown">
                 <button
                   className="dropdown-toggle user-dropdown"
@@ -337,8 +338,8 @@ const Navbar = () => {
             </div>
 
             <div className="mobile-sections">
-              {/* Mağaza Bölməsi - Daxil olmamış istifadəçilər və mağazalar üçün */}
-              {(!userToken || userType === 'store') && (
+              {/* Mağaza Bölməsi - Mağazalar ve giriş yapmamış kullanıcılar için */}
+              {(userType === 'store' || !userToken) && (
                 <div className="mobile-section">
                   <h3 className="mobile-section-title">
                     <FaStore className="section-icon" />
@@ -375,8 +376,8 @@ const Navbar = () => {
                 </div>
               )}
 
-              {/* İstifadəçi Bölməsi - Yalnız daxil olmamış istifadəçilər və müştərilər üçün */}
-              {(!userToken || userType === 'customer') && (
+              {/* İstifadəçi Bölməsi - Yalnız müştərilər üçün */}
+              {userType === 'customer' && (
                 <div className="mobile-section">
                   <h3 className="mobile-section-title">
                     <FaUser className="section-icon" />

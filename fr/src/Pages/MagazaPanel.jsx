@@ -114,7 +114,6 @@ const MagazaPanel = () => {
       {token && (
         <div className="form-row">
           <label>Mağaza seç</label>
-            
         </div>
       )}
 

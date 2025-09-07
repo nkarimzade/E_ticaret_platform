@@ -142,10 +142,8 @@ const ProductAdd = () => {
 
   const submit = async (e) => {
     e.preventDefault()
-    console.log('Submit başladı', { token: !!token, me: !!me, product })
     if (!token || !me) { 
       setError('Daxil olmaq lazımdır'); 
-      alert('Zəhmət olmasa əvvəlcə mağaza girişi edin!');
       return 
     }
     setSaving(true); setError('')
@@ -257,9 +255,7 @@ const ProductAdd = () => {
 
               }
       if (product.file) formData.append('image', product.file)
-      console.log('API çağrısı yapılıyor', { storeId: me._id || me.id, token: !!token })
-      const result = await api.addProduct(me._id || me.id, formData, token)
-      console.log('API başarılı', result)
+      await api.addProduct(me._id || me.id, formData, token)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
       setSelectedSizes([])
@@ -272,7 +268,6 @@ const ProductAdd = () => {
       setElektronikDetails({ brand: '', model: '', warranty: '', power: '' })
       setNotification({ message: 'Məhsul uğurla əlavə edildi!', type: 'success' })
     } catch (e) {
-      console.error('API hatası:', e)
       setNotification({ message: 'Əlavə etmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
     } finally { setSaving(false) }
   }
@@ -290,7 +285,6 @@ const ProductAdd = () => {
       <h2>Məhsul əlavə et</h2>
       {!token && <div className="muted">Zəhmət olmasa əvvəlcə daxil olun.</div>}
       {error && <div className="muted">{error}</div>}
-     
       <div className="product-add-card">
       <form className="form" onSubmit={submit}>
         <div className="form-row">
@@ -969,8 +963,7 @@ const ProductAdd = () => {
             <button 
               className="btn btn-primary" 
               type="submit" 
-              disabled={false}
-              onClick={() => console.log('Buton tıklandı', { saving, token: !!token, me: !!me })}
+              disabled={saving || !token || !me}
             >
               {saving ? 'Yüklənir...' : 'Əlavə et'}
             </button>
