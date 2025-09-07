@@ -13,7 +13,14 @@ dotenv.config()
 
 const app = express()
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://hesen.onrender.com', 'https://hesen-frontend.onrender.com'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000', 
+    'https://hesen.onrender.com', 
+    'https://hesen-frontend.onrender.com',
+    'https://www.bavio.shop',
+    'https://bavio.shop'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
