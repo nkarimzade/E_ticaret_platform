@@ -20,6 +20,7 @@ const Navbar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState(new URLSearchParams(location.search).get('q') || '')
+  const [searchTimeout, setSearchTimeout] = useState(null)
 
   // İstifadəçi vəziyyətini yoxla
   useEffect(() => {
@@ -101,16 +102,15 @@ const Navbar = () => {
     setSearchQuery(params.get('q') || '')
   }, [location.search])
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-    const params = new URLSearchParams(location.search)
-    if (searchQuery) {
-      params.set('q', searchQuery)
-    } else {
-      params.delete('q')
+  // Component unmount olduğunda timeout'u temizle
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout)
+      }
     }
-    navigate({ pathname: '/', search: params.toString() ? `?${params.toString()}` : '' })
-  }
+  }, [searchTimeout])
+
 
   const handleLogout = () => {
     clearAuthData()
@@ -187,11 +187,36 @@ const Navbar = () => {
           </div>
 
           {/* Search Center */}
-          <form onSubmit={handleSearchSubmit} className="navbar-search">
+          <div className="navbar-search">
             <div className="search-input-wrapper">
-              <input placeholder="Məhsul və ya mağaza axtar" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} />
+              <input 
+                placeholder="Məhsul və ya mağaza axtar" 
+                value={searchQuery} 
+                onChange={(e) => {
+                  const value = e.target.value
+                  setSearchQuery(value)
+                  
+                  // Önceki timeout'u temizle
+                  if (searchTimeout) {
+                    clearTimeout(searchTimeout)
+                  }
+                  
+                  // 300ms sonra arama yap (debounce)
+                  const timeout = setTimeout(() => {
+                    const params = new URLSearchParams(location.search)
+                    if (value) {
+                      params.set('q', value)
+                    } else {
+                      params.delete('q')
+                    }
+                    navigate({ pathname: '/', search: params.toString() ? `?${params.toString()}` : '' })
+                  }, 300)
+                  
+                  setSearchTimeout(timeout)
+                }}
+              />
             </div>
-          </form>
+          </div>
 
           {/* Desktop Buttons */}
           <div className="navbar-buttons">
