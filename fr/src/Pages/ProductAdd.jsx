@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { api, API_BASE_URL } from '../utils/api'
+import { api } from '../utils/api'
 import Notification from '../Components/Notification'
 
 const ProductAdd = () => {
@@ -127,24 +127,6 @@ const ProductAdd = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notification, setNotification] = useState(null)
-  const [apiStatus, setApiStatus] = useState('checking')
-
-  useEffect(() => {
-    (async () => {
-      try {
-        // API bağlantısını test et
-        const response = await fetch(`${API_BASE_URL}/health`)
-        if (response.ok) {
-          setApiStatus('connected')
-        } else {
-          setApiStatus('error')
-        }
-      } catch (e) {
-        setApiStatus('error')
-        console.error('API bağlantı hatası:', e)
-      }
-    })()
-  }, [])
 
   useEffect(() => {
     (async () => {
@@ -160,9 +142,9 @@ const ProductAdd = () => {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (apiStatus === 'error') {
-      setError('Backend sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.');
-      return
+    if (!token || !me) { 
+      setError('Daxil olmaq lazımdır'); 
+      return 
     }
     setSaving(true); setError('')
     try {
@@ -273,21 +255,7 @@ const ProductAdd = () => {
 
               }
       if (product.file) formData.append('image', product.file)
-      
-      // Debug bilgileri
-      const storeId = me?._id || me?.id || 'test-store-id'
-      const authToken = token || 'test-token'
-      
-      console.log('API çağrısı başlıyor...')
-      console.log('Store ID:', storeId)
-      console.log('Token var mı:', !!authToken)
-      console.log('Me bilgisi:', me)
-      console.log('FormData içeriği:')
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value)
-      }
-      
-      await api.addProduct(storeId, formData, authToken)
+      await api.addProduct(me._id || me.id, formData, token)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
       setSelectedSizes([])
@@ -300,31 +268,7 @@ const ProductAdd = () => {
       setElektronikDetails({ brand: '', model: '', warranty: '', power: '' })
       setNotification({ message: 'Məhsul uğurla əlavə edildi!', type: 'success' })
     } catch (e) {
-      console.error('Ürün ekleme hatası:', e)
-      console.error('Hata detayı:', e.message)
-      console.error('Hata stack:', e.stack)
-      
-      // Daha detaylı hata mesajı
-      let errorMessage = 'Əlavə etmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.'
-      
-      if (e.message) {
-        if (e.message.includes('401')) {
-          errorMessage = 'Giriş yapmanız gerekiyor. Lütfen mağaza girişi yapın.'
-        } else if (e.message.includes('403')) {
-          errorMessage = 'Bu işlem için yetkiniz yok.'
-        } else if (e.message.includes('404')) {
-          errorMessage = 'Mağaza bulunamadı.'
-        } else if (e.message.includes('500')) {
-          errorMessage = 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.'
-        } else if (e.message.includes('Network')) {
-          errorMessage = 'İnternet bağlantınızı kontrol edin.'
-        } else {
-          errorMessage = `Hata: ${e.message}`
-        }
-      }
-      
-      setNotification({ message: errorMessage, type: 'error' })
-      setError(errorMessage)
+      setNotification({ message: 'Əlavə etmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
     } finally { setSaving(false) }
   }
 
@@ -341,45 +285,6 @@ const ProductAdd = () => {
       <h2>Məhsul əlavə et</h2>
       {!token && <div className="muted">Zəhmət olmasa əvvəlcə daxil olun.</div>}
       {error && <div className="muted">{error}</div>}
-      
-      {/* API Durumu */}
-      <div style={{ 
-        fontSize: '12px', 
-        color: apiStatus === 'connected' ? '#28a745' : apiStatus === 'error' ? '#dc3545' : '#ffc107',
-        margin: '10px 0', 
-        padding: '8px', 
-        background: apiStatus === 'connected' ? '#d4edda' : apiStatus === 'error' ? '#f8d7da' : '#fff3cd',
-        borderRadius: '4px',
-        border: `1px solid ${apiStatus === 'connected' ? '#c3e6cb' : apiStatus === 'error' ? '#f5c6cb' : '#ffeaa7'}`
-      }}>
-        <strong>API Durumu:</strong> {
-          apiStatus === 'checking' ? 'Kontrol ediliyor...' :
-          apiStatus === 'connected' ? '✅ Bağlantı başarılı' :
-          apiStatus === 'error' ? '❌ Bağlantı hatası' : 'Bilinmeyen'
-        }
-        {apiStatus === 'error' && (
-          <div style={{ marginTop: '5px' }}>
-            <small>Backend sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.</small>
-          </div>
-        )}
-      </div>
-      
-      {/* Debug bilgileri */}
-      <div style={{ 
-        fontSize: '11px', 
-        color: '#666', 
-        margin: '10px 0', 
-        padding: '8px', 
-        background: '#f8f9fa', 
-        borderRadius: '4px',
-        border: '1px solid #dee2e6'
-      }}>
-        <strong>Debug Bilgileri:</strong><br/>
-        Token: {token ? '✅ Var' : '❌ Yok'}<br/>
-        Me: {me ? '✅ Var' : '❌ Yok'}<br/>
-        Store ID: {me?._id || me?.id || 'default-store-id'}<br/>
-        API Status: {apiStatus}
-      </div>
       
       <div className="product-add-card">
       <form className="form" onSubmit={submit}>
@@ -1059,7 +964,7 @@ const ProductAdd = () => {
             <button 
               className="btn btn-primary" 
               type="submit" 
-              disabled={saving}
+              disabled={saving || !token || !me}
             >
               {saving ? 'Yüklənir...' : 'Əlavə et'}
             </button>

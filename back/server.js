@@ -331,26 +331,18 @@ app.post('/api/stores/:id/toggle', async (req, res) => {
   }
 })
 
-app.post('/api/products/:storeId', upload.single('image'), async (req, res) => {
+app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { storeId } = req.params
     const { name, price, discountPrice, maxQty, stock, description, color, size, category, productCategory } = req.body || {}
     if (!name || price === undefined || stock === undefined) {
       return res.status(400).json({ message: 'Ürün bilgileri eksik.' })
     }
-    // Geçici olarak auth kontrolü kaldırıldı - test için
-    let store = await Store.findById(storeId)
-    if (!store) {
-      // Eğer store bulunamazsa, ilk store'u kullan
-      store = await Store.findOne({})
-      if (!store) {
-        return res.status(404).json({ message: 'Hiç mağaza bulunamadı' })
-      }
+    const store = await Store.findById(storeId)
+    if (!store) return res.status(404).json({ message: 'Mağaza bulunamadı' })
+    if (String(store.id) !== String(req.auth.storeId)) {
+      return res.status(403).json({ message: 'Sadece kendi mağazanıza ürün ekleyebilirsiniz.' })
     }
-    // Auth kontrolü kaldırıldı - test için
-    // if (String(store.id) !== String(req.auth.storeId)) {
-    //   return res.status(403).json({ message: 'Sadece kendi mağazanıza ürün ekleyebilirsiniz.' })
-    // }
     // Çoklu seçim alanlarını esnek şekilde ayrıştır
     const parseList = (value) => {
       if (!value) return []
