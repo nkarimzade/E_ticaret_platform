@@ -387,7 +387,7 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <a href="/panel" className="mobile-section-item" onClick={() => setIsOpen(false)}>
+                        <a href="/magaza-giris" className="mobile-section-item" onClick={() => setIsOpen(false)}>
                           <FaStore className="item-icon" />
                           Mağazana Daxil ol
                         </a>
