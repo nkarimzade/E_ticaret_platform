@@ -353,8 +353,8 @@ const ProductAdd = () => {
           </div>
         </div>
         <div className="form-row form-section">
-          <h3>Kampaniyalar</h3>
-          <p className="section-desc">Aşağıdakı kampaniyalardan uyğun olanları seçin.</p>
+          <h3>Kampaniyalar (opsional)</h3>
+          <p className="section-desc">Aşağıdakı kampaniyalardan uyğun olanları seçin. Boş bırakabilirsiniz.</p>
           <div className="options-toolbar">
             <button type="button" className="mini-btn" onClick={()=> setSelectedCampaigns(ALL_CAMPAIGNS)}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedCampaigns([])}>Təmizlə</button>
@@ -381,8 +381,8 @@ const ProductAdd = () => {
           </div>
         </div>
         <div className="form-row form-section">
-          <h3>Rənglər</h3>
-          <p className="section-desc">Mövcud rəngləri seçin. Müştərilər yalnız bu rənglərdən seçim edəcək.</p>
+          <h3>Rənglər (opsional)</h3>
+          <p className="section-desc">Mövcud rəngləri seçin. Boş bırakabilirsiniz.</p>
           <div className="options-toolbar">
             <button type="button" className="mini-btn" onClick={()=> setSelectedColors(ALL_COLORS.map(c => c.name))}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedColors([])}>Təmizlə</button>
@@ -415,8 +415,8 @@ const ProductAdd = () => {
         </div>
 
         <div className="form-row form-section">
-          <h3>Ölçülər</h3>
-          <p className="section-desc">Mövcud ölçüləri seçin. Müştərilər yalnız bu ölçülərdən seçim edəcək.</p>
+          <h3>Ölçülər (opsional)</h3>
+          <p className="section-desc">Mövcud ölçüləri seçin. Boş bırakabilirsiniz.</p>
           <div className="options-toolbar">
             <button type="button" className="mini-btn" onClick={()=> setSelectedSizes(getSizeOptions(product.productCategory))}>Hamısını seç</button>
             <button type="button" className="mini-btn" onClick={()=> setSelectedSizes([])}>Təmizlə</button>
@@ -446,8 +446,8 @@ const ProductAdd = () => {
 
         
         <div className="form-row form-section">
-          <label>Təsvir</label>
-          <textarea rows={4} value={product.description} onChange={(e)=> setProduct({ ...product, description: e.target.value })} />
+          <label>Təsvir (opsional)</label>
+          <textarea rows={4} value={product.description} onChange={(e)=> setProduct({ ...product, description: e.target.value })} placeholder="Məhsul haqqında əlavə məlumat..." />
         </div>
         
         {/* Kategori Detayları */}
@@ -942,8 +942,9 @@ const ProductAdd = () => {
         )}
 
         <div className="form-row">
-          <label>Şəkil (tək fayl)</label>
+          <label>Şəkil (opsional)</label>
           <input type="file" accept="image/*" onChange={(e)=> setProduct({ ...product, file: e.target.files?.[0] || null })} />
+          <div className="helper-text">Şəkil yükləmək məcburi deyil</div>
         </div>
 
         <div className="form-footer">
