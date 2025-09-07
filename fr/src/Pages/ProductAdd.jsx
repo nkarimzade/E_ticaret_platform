@@ -273,9 +273,20 @@ const ProductAdd = () => {
 
               }
       if (product.file) formData.append('image', product.file)
-      // Token ve me kontrolü kaldırıldı - buton her zaman aktif
+      
+      // Debug bilgileri
       const storeId = me?._id || me?.id || 'default-store-id'
       const authToken = token || 'default-token'
+      
+      console.log('API çağrısı başlıyor...')
+      console.log('Store ID:', storeId)
+      console.log('Token var mı:', !!authToken)
+      console.log('Me bilgisi:', me)
+      console.log('FormData içeriği:')
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value)
+      }
+      
       await api.addProduct(storeId, formData, authToken)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
@@ -289,7 +300,31 @@ const ProductAdd = () => {
       setElektronikDetails({ brand: '', model: '', warranty: '', power: '' })
       setNotification({ message: 'Məhsul uğurla əlavə edildi!', type: 'success' })
     } catch (e) {
-      setNotification({ message: 'Əlavə etmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.', type: 'error' })
+      console.error('Ürün ekleme hatası:', e)
+      console.error('Hata detayı:', e.message)
+      console.error('Hata stack:', e.stack)
+      
+      // Daha detaylı hata mesajı
+      let errorMessage = 'Əlavə etmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.'
+      
+      if (e.message) {
+        if (e.message.includes('401')) {
+          errorMessage = 'Giriş yapmanız gerekiyor. Lütfen mağaza girişi yapın.'
+        } else if (e.message.includes('403')) {
+          errorMessage = 'Bu işlem için yetkiniz yok.'
+        } else if (e.message.includes('404')) {
+          errorMessage = 'Mağaza bulunamadı.'
+        } else if (e.message.includes('500')) {
+          errorMessage = 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.'
+        } else if (e.message.includes('Network')) {
+          errorMessage = 'İnternet bağlantınızı kontrol edin.'
+        } else {
+          errorMessage = `Hata: ${e.message}`
+        }
+      }
+      
+      setNotification({ message: errorMessage, type: 'error' })
+      setError(errorMessage)
     } finally { setSaving(false) }
   }
 
@@ -328,6 +363,24 @@ const ProductAdd = () => {
           </div>
         )}
       </div>
+      
+      {/* Debug bilgileri */}
+      <div style={{ 
+        fontSize: '11px', 
+        color: '#666', 
+        margin: '10px 0', 
+        padding: '8px', 
+        background: '#f8f9fa', 
+        borderRadius: '4px',
+        border: '1px solid #dee2e6'
+      }}>
+        <strong>Debug Bilgileri:</strong><br/>
+        Token: {token ? '✅ Var' : '❌ Yok'}<br/>
+        Me: {me ? '✅ Var' : '❌ Yok'}<br/>
+        Store ID: {me?._id || me?.id || 'default-store-id'}<br/>
+        API Status: {apiStatus}
+      </div>
+      
       <div className="product-add-card">
       <form className="form" onSubmit={submit}>
         <div className="form-row">
