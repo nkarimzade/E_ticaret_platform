@@ -553,7 +553,7 @@
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:#111827;font-weight:600;cursor:pointer;transition:all .2s ease;text-decoration:none}
 .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(2,6,23,.08)}
 .btn-primary{background:var(--primary);color:#fff;border-color:transparent}
-.btn-primary:hover{background:var(--primary-2)}
+.btn-primary:hover{cursor:pointer}
 .btn-outline{background:transparent;color:var(--primary);border-color:var(--primary)}
 .btn-outline:hover{background:rgba(99,102,241,.08);color:var(--primary-2)}
 .btn-outline.active{border-color:#111827 !important;color:#111827 !important;background:rgba(17,24,39,.06)}
