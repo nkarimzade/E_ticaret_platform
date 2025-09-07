@@ -8,5 +8,8 @@ export default defineConfig({
     rollupOptions: {
       // no special options, but keeps rollup explicit in deps
     }
+  },
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify('https://hesen.onrender.com')
   }
 })
