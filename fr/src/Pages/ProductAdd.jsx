@@ -5,7 +5,7 @@ import Notification from '../Components/Notification'
 const ProductAdd = () => {
   const [token] = useState(localStorage.getItem('store_token') || '')
   const [me, setMe] = useState(null)
-  const [product, setProduct] = useState({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null })
+  const [product, setProduct] = useState({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
 
   // Çoklu seçimler
   const ALL_COLORS = [
@@ -253,7 +253,7 @@ const ProductAdd = () => {
               }
       if (product.file) formData.append('image', product.file)
       await api.addProduct(me._id || me.id, formData, token)
-      setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', file: null })
+      setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
       setSelectedSizes([])
       setSelectedCampaigns([])
@@ -957,7 +957,7 @@ const ProductAdd = () => {
             </span>
           </label>
           <div className="form-actions">
-            <button className="btn btn-primary" type="submit" disabled={saving || !token}>{saving ? 'Yüklənir...' : 'Əlavə et'}</button>
+            <button className="btn btn-primary" type="submit" disabled={saving || !token || !me}>{saving ? 'Yüklənir...' : 'Əlavə et'}</button>
           </div>
         </div>
       </form>
