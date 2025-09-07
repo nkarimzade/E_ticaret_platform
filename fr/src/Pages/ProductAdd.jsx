@@ -275,8 +275,8 @@ const ProductAdd = () => {
       if (product.file) formData.append('image', product.file)
       
       // Debug bilgileri
-      const storeId = me?._id || me?.id || 'default-store-id'
-      const authToken = token || 'default-token'
+      const storeId = me?._id || me?.id || 'test-store-id'
+      const authToken = token || 'test-token'
       
       console.log('API çağrısı başlıyor...')
       console.log('Store ID:', storeId)
