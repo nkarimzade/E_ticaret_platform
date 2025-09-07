@@ -253,8 +253,8 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* İstifadəçi Dropdown - Yalnız müştərilər üçün */}
-            {userType === 'customer' && (
+            {/* İstifadəçi Dropdown - Müştərilər ve giriş yapmamış kullanıcılar için */}
+            {(userType === 'customer' || (!userToken && userType !== 'store')) && (
               <div className="dropdown">
                 <button
                   className="dropdown-toggle user-dropdown"
@@ -376,8 +376,8 @@ const Navbar = () => {
                 </div>
               )}
 
-              {/* İstifadəçi Bölməsi - Yalnız müştərilər üçün */}
-              {userType === 'customer' && (
+              {/* İstifadəçi Bölməsi - Müştərilər ve giriş yapmamış kullanıcılar için */}
+              {(userType === 'customer' || (!userToken && userType !== 'store')) && (
                 <div className="mobile-section">
                   <h3 className="mobile-section-title">
                     <FaUser className="section-icon" />
