@@ -127,6 +127,7 @@ const ProductAdd = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notification, setNotification] = useState(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -140,6 +141,24 @@ const ProductAdd = () => {
     })()
   }, [token])
 
+  // Cloudinary'e görsel yükleme fonksiyonu
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData()
+    formData.append('image', file)
+    
+    const response = await fetch('https://hesen.onrender.com/api/upload/image', {
+      method: 'POST',
+      body: formData
+    })
+    
+    if (!response.ok) {
+      throw new Error('Görsel yükleme başarısız')
+    }
+    
+    const result = await response.json()
+    return result.url
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     if (!token || !me) { 
@@ -148,6 +167,20 @@ const ProductAdd = () => {
     }
     setSaving(true); setError('')
     try {
+      // Önce görseli Cloudinary'e yükle (eğer varsa)
+      let imageUrl = ''
+      if (product.file) {
+        setUploadingImage(true)
+        try {
+          imageUrl = await uploadImageToCloudinary(product.file)
+        } catch (uploadError) {
+          setNotification({ message: 'Görsel yükleme başarısız: ' + uploadError.message, type: 'error' })
+          return
+        } finally {
+          setUploadingImage(false)
+        }
+      }
+
       const formData = new FormData()
       formData.append('name', product.name)
       formData.append('price', String(product.price))
@@ -162,6 +195,9 @@ const ProductAdd = () => {
       if (selectedSizes.length > 0) formData.append('sizes', JSON.stringify(selectedSizes))
       if (selectedCampaigns.length > 0) formData.append('campaigns', JSON.stringify(selectedCampaigns))
       if (product.description) formData.append('description', product.description)
+      
+      // Cloudinary URL'sini ekle
+      if (imageUrl) formData.append('imageUrl', imageUrl)
       
       // Kategori detaylarını ekle
       if (product.productCategory === 'giyim') {
@@ -254,7 +290,7 @@ const ProductAdd = () => {
         }
 
               }
-      if (product.file) formData.append('image', product.file)
+      // Eski kod: if (product.file) formData.append('image', product.file) - Artık Cloudinary kullanıyoruz
       await api.addProduct(me._id || me.id, formData, token)
       setProduct({ name: '', price: '', discountPrice: '', maxQty: 5, stock: '', color: '', size: '', description: '', category: 'kadin', productCategory: 'giyim', file: null, visible: true })
       setSelectedColors([])
@@ -964,9 +1000,9 @@ const ProductAdd = () => {
             <button 
               className="btn btn-primary" 
               type="submit" 
-              disabled={saving || !token || !me}
+              disabled={saving || uploadingImage || !token || !me}
             >
-              {saving ? 'Yüklənir...' : 'Əlavə et'}
+              {uploadingImage ? 'Görsel yükleniyor...' : saving ? 'Yüklənir...' : 'Əlavə et'}
             </button>
           </div>
         </div>
