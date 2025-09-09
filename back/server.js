@@ -8,8 +8,16 @@ import multer from 'multer'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { v2 as cloudinary } from 'cloudinary'
 
 dotenv.config()
+
+// Cloudinary konfigürasyonu
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 const app = express()
 app.use(cors({
@@ -62,6 +70,9 @@ const fileFilter = (_req, file, cb) => {
   else cb(new Error('Sadece görsel yükleyin'))
 }
 const upload = multer({ storage, fileFilter, limits: { files: 1, fileSize: 5 * 1024 * 1024 } })
+
+// Cloudinary için memory storage (dosyayı diske yazmadan yükler)
+const uploadMemory = multer({ storage: multer.memoryStorage(), fileFilter, limits: { files: 1, fileSize: 5 * 1024 * 1024 } })
 
 // MongoDB bağlantı olayları (durum logları)
 mongoose.connection.on('connected', () => {
@@ -391,7 +402,9 @@ app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (r
         categoryDetailsObj = {} 
       }
     }
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : ''
+    // Eğer Cloudinary üzerinden yüklenmiş URL gönderildiyse onu kullan
+    const imageUrlFromBody = typeof req.body.imageUrl === 'string' ? req.body.imageUrl.trim() : ''
+    const imagePath = imageUrlFromBody || (req.file ? `/uploads/${req.file.filename}` : '')
     const productDoc = {
       name,
       price: Number(price),
@@ -1100,6 +1113,32 @@ app.delete('/api/cart', requireAuth, async (req, res) => {
 })
 
 app.get('/health', (_req, res) => res.json({ ok: true }))
+
+// Basit Cloudinary upload endpoint'i
+// form-data: key "image" (single file)
+app.post('/api/upload/image', uploadMemory.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'Görsel (image) gerekli' })
+
+    // Buffer'dan Cloudinary'e yüklemek için upload_stream kullan
+    const uploadFromBuffer = (fileBuffer) => new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: process.env.CLOUDINARY_FOLDER || 'hesen_uploads' },
+        (error, result) => {
+          if (error) return reject(error)
+          resolve(result)
+        }
+      )
+      stream.end(fileBuffer)
+    })
+
+    const result = await uploadFromBuffer(req.file.buffer)
+    return res.json({ url: result.secure_url, public_id: result.public_id })
+  } catch (e) {
+    console.error('Cloudinary upload error:', e)
+    return res.status(500).json({ message: 'Yükleme başarısız', error: String(e?.message || e) })
+  }
+})
 
 async function start() {
   try {
