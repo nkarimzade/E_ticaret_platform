@@ -184,6 +184,7 @@ const Navbar = () => {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '50px' }} className="navbar-logo">
              <h1><a href="/"><img className="navbar-logo-img" src="/bavılogo.png" alt="logo" /></a></h1>
+             <H1>SALİH HESEN</H1>
           </div>
 
           {/* Search Center */}
