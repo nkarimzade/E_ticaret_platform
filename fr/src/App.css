@@ -9,6 +9,11 @@
 }
 
 .page{max-width:1200px;margin:0 auto;padding:80px 24px 40px;}
+/* Admin page tighter top spacing */
+.admin-page{margin-top:-100px}
+@media (min-width: 1024px){
+  .admin-page{padding-top:0}
+}
 .page-narrow{max-width:760px;}
 
 /* Centered layout for narrow pages (e.g., mağaza-ac) */
@@ -422,6 +427,12 @@
   animation: slideOutRight 0.3s ease-out;
 }
 
+/* Top-center variant enters from top */
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Modal animations */
 @keyframes fadeIn {
   from {
@@ -430,6 +441,12 @@
   to {
     opacity: 1;
   }
+}
+
+/* Snackbar animation */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @keyframes slideInUp {
@@ -2442,6 +2459,54 @@
   transition: all 0.3s ease;
   z-index: 15;
   color: #6b7280;
+}
+
+/* ========================= */
+/* Panel Responsive Layout    */
+/* ========================= */
+.panel-layout{display:grid;grid-template-columns:240px 1fr;gap:16px}
+.panel-sidebar{position:sticky;top:12px;height:fit-content;overflow:hidden;border:1px solid #e5e7eb;border-radius:16px;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(2,6,23,.06)}
+.panel-sidebar .card-header{display:none}
+.panel-sidebar .card-body{display:none}
+.panel-sidebar-inner{color:#334155;padding:12px}
+.panel-sidebar .brand{display:flex;align-items:center;gap:10px;padding:8px 10px 12px;font-weight:700;color:#111827}
+.panel-sidebar .brand small{opacity:.75;font-weight:600;color:#64748b}
+.panel-nav{display:flex;flex-direction:column;gap:4px;padding:6px}
+.panel-nav .btn{width:100%;justify-content:flex-start;border:none;background:transparent;color:#334155;border-radius:12px;padding:10px 12px;font-weight:600}
+.panel-nav .btn:hover{background:rgba(2,6,23,.05);transform:none;box-shadow:none;color:#111827}
+.panel-nav .btn-primary{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe}
+.panel-nav .btn-primary:hover{background:#e0e7ff;color:#4338ca}
+.panel-nav .btn-danger{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+.panel-nav .btn-danger:hover{background:#fee2e2}
+
+/* Panel main content cards */
+.panel-layout main .card{border-radius:16px;border:1px solid #e5e7eb;box-shadow:0 8px 26px rgba(2,6,23,.06);background:rgba(255,255,255,.75);backdrop-filter:blur(8px)}
+.panel-layout main .card-header{background:transparent;border-bottom:1px solid #eef2f7;border-radius:16px 16px 0 0}
+.panel-layout main h2{font-weight:700;letter-spacing:-.01em}
+
+/* Dashboard stat grid responsive */
+.stat-grid{grid-auto-rows:1fr}
+.stat-card{min-width:0}
+.stat-card .card-header h3{white-space:normal;overflow:hidden;text-overflow:ellipsis;display:block}
+
+@media (max-width:900px){
+  .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px}
+}
+@media (max-width:520px){
+  .stat-grid{grid-template-columns:1fr !important;gap:10px}
+}
+
+/* Settings layout */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.settings-grid{grid-template-columns:1fr}}
+.panel-mobile-bar{display:none;align-items:center;justify-content:space-between;margin-bottom:12px}
+
+@media (max-width: 960px){
+  .panel-layout{grid-template-columns:1fr}
+  .panel-mobile-bar{display:flex}
+  .panel-sidebar{position:static}
+  .panel-sidebar.is-hidden{display:none}
+  .page{margin-top:0}
 }
 
 /* Admin Panel Styles */

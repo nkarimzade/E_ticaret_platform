@@ -57,24 +57,23 @@ const AdminLayout = () => {
         />
       )}
       
-      <div className="card" style={{marginBottom:12}}>
-        <div className="card-header">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>Admin Panel</h2>
-            <button 
-              className="btn btn-danger btn-sm" 
-              onClick={handleLogout}
-            >
-              Çıxış
-            </button>
+      <div className="panel-layout">
+        <aside className="card panel-sidebar" style={{position:'sticky',top:12}}>
+          <div className="panel-sidebar-inner">
+            <div className="brand" style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <span style={{fontWeight:700}}>Admin</span>
+              <button className="btn btn-danger btn-sm" onClick={handleLogout}>Çıxış</button>
+            </div>
+            <nav className="panel-nav">
+              <Link className={`btn ${isActive('/admin')||isActive('/admin/stores')?'btn-primary':''}`} to="/admin/stores">Mağazalar & Məhsullar</Link>
+              <Link className={`btn ${isActive('/admin/users')?'btn-primary':''}`} to="/admin/users">İstifadəçilər</Link>
+            </nav>
           </div>
-        </div>
-        <div className="card-body" style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          <Link className={`btn ${isActive('/admin')||isActive('/admin/stores')?'btn-primary':''}`} to="/admin/stores">Mağazalar & Məhsullar</Link>
-          <Link className={`btn ${isActive('/admin/users')?'btn-primary':''}`} to="/admin/users">İstifadəçilər</Link>
-        </div>
+        </aside>
+        <main>
+          <Outlet />
+        </main>
       </div>
-      <Outlet />
     </div>
   )
 }

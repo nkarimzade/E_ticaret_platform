@@ -22,6 +22,7 @@ export const api = {
   rejectStore: (id) => fetch(`${API_BASE_URL}/api/stores/${id}/reject`, { method: 'POST' }).then(handle),
   toggleStore: (id) => fetch(`${API_BASE_URL}/api/stores/${id}/toggle`, { method: 'POST' }).then(handle),
   deleteStore: (id) => fetch(`${API_BASE_URL}/api/stores/${id}`, { method: 'DELETE' }).then(handle),
+  updateStore: (id, patch, token) => fetch(`${API_BASE_URL}/api/stores/${id}`, { method: 'PATCH', headers: { ...jsonHeaders, Authorization: `Bearer ${token}` }, body: JSON.stringify(patch) }).then(handle),
   // Products
   addProduct: (storeId, formData, token) => fetch(`${API_BASE_URL}/api/products/${storeId}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData }).then(handle),
   updateProduct: (storeId, productId, patch, token) => fetch(`${API_BASE_URL}/api/products/${storeId}/${productId}`, { method: 'PATCH', headers: { ...jsonHeaders, Authorization: `Bearer ${token}` }, body: JSON.stringify(patch) }).then(handle),

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../utils/api'
-import { getAuthToken } from '../utils/auth'
+import { getAuthToken, getUserType } from '../utils/auth'
 import { FaCalendarAlt, FaUser } from 'react-icons/fa'
 
 const ProductDetail = () => {
@@ -20,6 +20,8 @@ const ProductDetail = () => {
   const [addingToCart, setAddingToCart] = useState(false)
   const [cartNotification, setCartNotification] = useState(null)
   const userToken = getAuthToken()
+  const userType = getUserType()
+  const isNormalUser = !!userToken && userType !== 'store'
 
   useEffect(() => {
     (async () => {
@@ -1287,7 +1289,7 @@ Təşəkkürlər! 🙏`
         
         {/* Sepete Ekle ve Ödeme butonları */}
         <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #e5e7eb' }}>
-          {userToken && (
+          {isNormalUser && (
             <button 
               className="btn btn-success" 
               onClick={handleAddToCart}

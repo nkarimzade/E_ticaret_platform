@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { api, resolveImageUrl } from '../utils/api'
-import { getAuthToken } from '../utils/auth'
+import { getAuthToken, getUserType } from '../utils/auth'
 import { Link } from 'react-router-dom'
 import './Magazalar.css'
 import Notification from '../Components/Notification'
@@ -19,6 +19,8 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
   const [favorites, setFavorites] = useState([])
   const [cart, setCart] = useState([])
   const userToken = getAuthToken()
+  const userType = getUserType()
+  const isNormalUser = !!userToken && userType !== 'store'
   
   useEffect(() => { (async () => setApproved(await api.listApprovedStores()))() }, [])
   
@@ -343,7 +345,7 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
                   <div className="image-cta">
                     <span>Ətraflı bax</span>
                   </div>
-                  {userToken && (
+                  {isNormalUser && (
                     <button 
                       className={`favorite-btn ${isFavorite(p.id) ? 'favorite-active' : ''}`}
                       onClick={(e) => handleFavoriteToggle(p.id, p.storeId, e)}
@@ -378,7 +380,7 @@ const Magazalar = ({ selectedCategory = 'tumu' }) => {
                       {p.campaigns.length > 2 && <span className="pill">+{p.campaigns.length - 2}</span>}
                     </div>
                   )}
-                  {userToken && (
+                  {isNormalUser && (
                     <button 
                       className={`add-to-cart-btn ${isInCart(p.id) ? 'in-cart' : ''}`}
                       onClick={(e) => {

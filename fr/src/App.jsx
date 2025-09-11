@@ -11,6 +11,10 @@ import AdminStores from './Pages/AdminStores'
 import AdminUsers from './Pages/AdminUsers'
 import AdminLayout from './Pages/AdminLayout'
 import MagazaPanel from './Pages/MagazaPanel'
+import PanelLayout from './Pages/PanelLayout'
+import PanelDashboard from './Pages/PanelDashboard'
+import PanelProducts from './Pages/PanelProducts'
+import PanelSettings from './Pages/PanelSettings'
 import StoreDetail from './Pages/StoreDetail'
 import ProductDetail from './Pages/ProductDetail'
 import ProductAdd from './Pages/ProductAdd'
@@ -47,7 +51,11 @@ const AppContent = () => {
           <Route path='stores' element={<AdminStores />} />
           <Route path='users' element={<AdminUsers />} />
         </Route>
-        <Route path='/panel' element={<MagazaPanel />} />
+        <Route path='/panel' element={<PanelLayout />}>
+          <Route index element={<PanelDashboard />} />
+          <Route path='urunler' element={<PanelProducts />} />
+          <Route path='ayarlar' element={<PanelSettings />} />
+        </Route>
         <Route path='/magaza/:id' element={<StoreDetail />} />
         <Route path='/urun/:storeId/:productId' element={<ProductDetail />} />
         <Route path='/urun-ekle' element={<ProductAdd />} />
