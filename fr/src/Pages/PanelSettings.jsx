@@ -11,22 +11,46 @@ const PanelSettings = () => {
   const [active, setActive] = useState(!!currentStore?.active)
 
   const isValidAzPhone = (val) => {
-    // Kabul edilen format: +994 5xx xxx xx xx veya +9945xxxxxxxx
-    const compact = val.replace(/\s|-/g, '')
-    return /^\+994(50|51|55|70|77|99|10)\d{7}$/.test(compact)
+    const allowed = ['50','51','55','70','77','99', '60']
+    const digits = String(val).replace(/\D/g, '')
+    const rest = digits.startsWith('994') ? digits.slice(3) : digits
+    if (rest.length !== 9) return false
+    const op = rest.slice(0,2)
+    const number = rest.slice(2)
+    return allowed.includes(op) && number.length === 7
+  }
+
+  const formatAzPhone = (val) => {
+    const digits = String(val).replace(/\D/g, '')
+    let rest = digits
+    if (rest.startsWith('994')) rest = rest.slice(3)
+    else if (rest.startsWith('0')) rest = rest.slice(1)
+    rest = rest.slice(0, 9)
+    const op = rest.slice(0, 2)
+    const p1 = rest.slice(2, 5)
+    const p2 = rest.slice(5, 7)
+    const p3 = rest.slice(7, 9)
+    let out = '+994'
+    if (op) out += ` ${op}`
+    if (p1) out += ` ${p1}`
+    if (p2) out += ` ${p2}`
+    if (p3) out += ` ${p3}`
+    return out
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
     if (!currentStore) return
     setSaving(true); setMessage(''); setError('')
-    if (!isValidAzPhone(phone)){
+    const normalized = formatAzPhone(phone)
+    setPhone(normalized)
+    if (!isValidAzPhone(normalized)){
       setSaving(false)
-      setError('Telefon formatı geçersiz. Örn: +994 50xxxxxxx')
+      setError('Telefon formatı geçersiz. Örn: +994 50 123 45 67')
       return
     }
     try{
-      await api.updateStore(currentStore._id || currentStore.id, { phone }, token)
+      await api.updateStore(currentStore._id || currentStore.id, { phone: normalized }, token)
       setMessage('Telefon numarası güncellendi')
     }catch(err){
       setError(err.message || 'Güncelleme başarısız')
@@ -66,7 +90,7 @@ const PanelSettings = () => {
           <div className="card-body" style={{ display: 'grid', gap: 12 }}>
             <div>
               <label>Telefon Numarası</label>
-              <input type="tel" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="Örn: +994 50 xxx xx xx" />
+              <input type="tel" value={phone} onChange={(e)=>setPhone(formatAzPhone(e.target.value))} placeholder="Örn: +994 50 123 45 67" inputMode="tel" autoComplete="tel" />
             </div>
             {error && <div className="error-message">{error}</div>}
             {message && <div className="muted">{message}</div>}

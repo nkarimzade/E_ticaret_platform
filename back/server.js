@@ -349,6 +349,43 @@ app.post('/api/stores/:id/toggle', async (req, res) => {
   }
 })
 
+// Update store fields (owner or admin)
+app.patch('/api/stores/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params
+    const payload = req.auth || {}
+    // Allow if admin token or store owner token matches
+    const isAdminToken = !!payload.isAdmin
+    const isOwnerToken = String(payload.storeId || '') === String(id)
+    if (!isAdminToken && !isOwnerToken) {
+      return res.status(403).json({ message: 'Sadece kendi mağazanızı güncelleyebilirsiniz.' })
+    }
+
+    const { phone, name, active, description } = req.body || {}
+
+    // Optional phone validation for AZ format +994 xx xxx xx xx
+    if (phone !== undefined) {
+      const digits = String(phone).replace(/\D/g, '')
+      const rest = digits.startsWith('994') ? digits.slice(3) : digits
+      const allowed = ['50','51','55','70','77','99','60']
+      const valid = rest.length === 9 && allowed.includes(rest.slice(0,2))
+      if (!valid) return res.status(400).json({ message: 'Geçersiz telefon formatı' })
+    }
+
+    const patch = {}
+    if (phone !== undefined) patch.phone = phone
+    if (name !== undefined) patch.name = name
+    if (description !== undefined) patch.description = description
+    if (active !== undefined) patch.active = !!active
+
+    const updated = await Store.findByIdAndUpdate(id, { $set: patch }, { new: true })
+    if (!updated) return res.status(404).json({ message: 'Mağaza bulunamadı' })
+    res.json(updated.toJSON())
+  } catch (e) {
+    res.status(500).json({ message: 'Sunucu hatası', error: String(e) })
+  }
+})
+
 app.post('/api/products/:storeId', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { storeId } = req.params
